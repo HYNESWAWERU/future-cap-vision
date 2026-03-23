@@ -22,8 +22,17 @@ export interface TradingState {
 }
 
 const KES_RATE = 129;
+const STORAGE_KEY = "trading-engine-state";
 
 export const toKES = (usd: number) => usd * KES_RATE;
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+}
 
 function getDaysInYear(year: number): Date[] {
   const days: Date[] = [];
