@@ -1,6 +1,5 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { format } from "date-fns";
-import { Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { toKES, type DayEntry } from "@/hooks/useTradingEngine";
@@ -9,21 +8,32 @@ interface Props {
   entries: DayEntry[];
   setActualResult: (day: number, value: number | null) => void;
   toggleVerified: (day: number) => void;
+  readOnly?: boolean;
+  onEdit?: (field: string, oldValue: string, newValue: string, dayIndex?: number) => void;
 }
 
 const fmt = (n: number) => n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const PAGE_SIZE = 31;
 
-export default function TradingTable({ entries, setActualResult, toggleVerified }: Props) {
+export default function TradingTable({ entries, setActualResult, toggleVerified, readOnly = false, onEdit }: Props) {
   const [page, setPage] = useState(0);
   const totalPages = Math.ceil(entries.length / PAGE_SIZE);
   const pageEntries = entries.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const handleActual = useCallback((dayIndex: number, val: string) => {
+  const handleActual = useCallback((dayIndex: number, val: string, oldVal: number | null) => {
+    if (readOnly) return;
     const num = parseFloat(val);
-    setActualResult(dayIndex, isNaN(num) ? null : num);
-  }, [setActualResult]);
+    const newVal = isNaN(num) ? null : num;
+    setActualResult(dayIndex, newVal);
+    onEdit?.("Actual Result", oldVal !== null ? String(oldVal) : "", newVal !== null ? String(newVal) : "", dayIndex);
+  }, [setActualResult, readOnly, onEdit]);
+
+  const handleVerified = useCallback((dayIndex: number, currentState: boolean) => {
+    if (readOnly) return;
+    toggleVerified(dayIndex);
+    onEdit?.("Verified", String(currentState), String(!currentState), dayIndex);
+  }, [toggleVerified, readOnly, onEdit]);
 
   return (
     <div className="rounded-lg border border-border bg-card overflow-hidden">
@@ -65,8 +75,9 @@ export default function TradingTable({ entries, setActualResult, toggleVerified 
                       type="number" step={0.01}
                       placeholder="—"
                       defaultValue={e.actualResult ?? ""}
-                      onBlur={(ev) => handleActual(e.dayOfYear, ev.target.value)}
-                      className="h-6 w-28 text-xs font-mono bg-secondary border-border text-right ml-auto"
+                      onBlur={(ev) => handleActual(e.dayOfYear, ev.target.value, e.actualResult)}
+                      disabled={readOnly}
+                      className="h-6 w-28 text-xs font-mono bg-secondary border-border text-right ml-auto disabled:opacity-40"
                     />
                   </td>
                   <td className="px-3 py-1.5 font-mono text-right">{fmt(e.closingCapital)}</td>
@@ -80,8 +91,9 @@ export default function TradingTable({ entries, setActualResult, toggleVerified 
                     {e.deviation >= 0 ? "+" : ""}{fmt(e.deviation)}
                   </td>
                   <td className="px-3 py-1.5 text-center">
-                    <Checkbox checked={e.verified} onCheckedChange={() => toggleVerified(e.dayOfYear)}
-                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+                    <Checkbox checked={e.verified} onCheckedChange={() => handleVerified(e.dayOfYear, e.verified)}
+                      disabled={readOnly}
+                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary disabled:opacity-40" />
                   </td>
                 </tr>
               );
