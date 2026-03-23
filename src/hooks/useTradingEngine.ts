@@ -45,13 +45,12 @@ function getDaysInYear(year: number): Date[] {
 }
 
 export function useTradingEngine() {
-  const saved = useMemo(() => loadState(), []);
-  const [startingCapital, setStartingCapital] = useState(saved?.startingCapital ?? 1000);
-  const [dailyTargetPercent, setDailyTargetPercent] = useState(saved?.dailyTargetPercent ?? 4.0);
-  const [year, setYear] = useState(saved?.year ?? new Date().getFullYear());
-  const [actuals, setActuals] = useState<Record<number, number | null>>(saved?.actuals ?? {});
-  const [verified, setVerified] = useState<Record<number, boolean>>(saved?.verified ?? {});
-  const [accountabilityPartner, setAccountabilityPartner] = useState(saved?.accountabilityPartner ?? "");
+  const [startingCapital, setStartingCapital] = useState(() => loadState()?.startingCapital ?? 1000);
+  const [dailyTargetPercent, setDailyTargetPercent] = useState(() => loadState()?.dailyTargetPercent ?? 4.0);
+  const [year, setYear] = useState(() => loadState()?.year ?? new Date().getFullYear());
+  const [actuals, setActuals] = useState<Record<number, number | null>>(() => loadState()?.actuals ?? {});
+  const [verified, setVerified] = useState<Record<number, boolean>>(() => loadState()?.verified ?? {});
+  const [accountabilityPartner, setAccountabilityPartner] = useState(() => loadState()?.accountabilityPartner ?? "");
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
