@@ -84,15 +84,18 @@ export function PinSetupDialog({ open, onSetPin }: PinSetupProps) {
 interface PinEntryProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (pin: string) => boolean;
+  onSubmit: (pin: string) => Promise<boolean>;
 }
 
 export function PinEntryDialog({ open, onClose, onSubmit }: PinEntryProps) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    const ok = onSubmit(pin);
+  const handleSubmit = async () => {
+    setLoading(true);
+    const ok = await onSubmit(pin);
+    setLoading(false);
     if (!ok) {
       setError("Incorrect PIN. Access denied.");
       setPin("");
@@ -129,8 +132,8 @@ export function PinEntryDialog({ open, onClose, onSubmit }: PinEntryProps) {
             </InputOTPGroup>
           </InputOTP>
           {error && <p className="text-xs text-destructive">{error}</p>}
-          <Button onClick={handleSubmit} disabled={pin.length !== 4} className="w-full">
-            <Unlock className="h-4 w-4 mr-2" /> Unlock
+          <Button onClick={handleSubmit} disabled={pin.length !== 4 || loading} className="w-full">
+            <Unlock className="h-4 w-4 mr-2" /> {loading ? "Verifying…" : "Unlock"}
           </Button>
         </div>
       </DialogContent>

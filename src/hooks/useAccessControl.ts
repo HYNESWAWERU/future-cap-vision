@@ -10,11 +10,19 @@ export interface EditLogEntry {
   newValue: string;
 }
 
-const PIN_STORAGE_KEY = "trading-pin";
+const PIN_STORAGE_KEY = "trading-pin-hash";
 const LOG_STORAGE_KEY = "trading-edit-log";
-const INACTIVITY_TIMEOUT = 60_000; // 60 seconds
+const INACTIVITY_TIMEOUT = 60_000;
 
-function loadPin(): string | null {
+async function hashPin(pin: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pin + "trading-salt-2024");
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function loadPinHash(): string | null {
   try {
     return localStorage.getItem(PIN_STORAGE_KEY);
   } catch {
@@ -32,30 +40,23 @@ function loadLog(): EditLogEntry[] {
 }
 
 export function useAccessControl() {
-  const [storedPin, setStoredPinState] = useState<string | null>(loadPin);
+  const [storedHash, setStoredHash] = useState<string | null>(loadPinHash);
   const [activeRole, setActiveRole] = useState<UserRole>("trader");
   const [editLog, setEditLog] = useState<EditLogEntry[]>(loadLog);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isPinSet = storedPin !== null;
+  const isPinSet = storedHash !== null;
   const isEditable = activeRole === "partner";
 
-  // Persist edit log
   useEffect(() => {
     localStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(editLog.slice(-200)));
   }, [editLog]);
 
-  const setPin = useCallback((pin: string) => {
-    localStorage.setItem(PIN_STORAGE_KEY, pin);
-    setStoredPinState(pin);
+  const setPin = useCallback(async (pin: string) => {
+    const hash = await hashPin(pin);
+    localStorage.setItem(PIN_STORAGE_KEY, hash);
+    setStoredHash(hash);
   }, []);
-
-  const verifyPin = useCallback(
-    (pin: string): boolean => {
-      return pin === storedPin;
-    },
-    [storedPin]
-  );
 
   const resetInactivityTimer = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -65,15 +66,16 @@ export function useAccessControl() {
   }, []);
 
   const unlockPartner = useCallback(
-    (pin: string): boolean => {
-      if (verifyPin(pin)) {
+    async (pin: string): Promise<boolean> => {
+      const hash = await hashPin(pin);
+      if (hash === storedHash) {
         setActiveRole("partner");
         resetInactivityTimer();
         return true;
       }
       return false;
     },
-    [verifyPin, resetInactivityTimer]
+    [storedHash, resetInactivityTimer]
   );
 
   const lockToTrader = useCallback(() => {
@@ -93,7 +95,6 @@ export function useAccessControl() {
     [activeRole, resetInactivityTimer]
   );
 
-  // Cleanup timer
   useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -105,7 +106,6 @@ export function useAccessControl() {
     isPinSet,
     isEditable,
     setPin,
-    verifyPin,
     unlockPartner,
     lockToTrader,
     editLog,
