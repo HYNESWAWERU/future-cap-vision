@@ -10,12 +10,14 @@ import TradingCharts from "@/components/TradingCharts";
 import RoleBadge from "@/components/RoleBadge";
 import { PinSetupDialog, PinEntryDialog } from "@/components/PinDialog";
 import EditLogDialog from "@/components/EditLogDialog";
+import ResetTradesDialog from "@/components/ResetTradesDialog";
 
 export default function Index() {
   const engine = useTradingEngine();
   const access = useAccessControl();
   const [showPinEntry, setShowPinEntry] = useState(false);
   const [showEditLog, setShowEditLog] = useState(false);
+  const [showReset, setShowReset] = useState(false);
 
   const readOnly = !access.isEditable;
 
@@ -35,6 +37,21 @@ export default function Index() {
 
       <EditLogDialog open={showEditLog} onClose={() => setShowEditLog(false)} entries={access.editLog} />
 
+      <ResetTradesDialog
+        open={showReset}
+        onClose={() => setShowReset(false)}
+        onConfirm={async (pin) => {
+          const ok = await access.unlockPartner(pin);
+          if (ok) {
+            engine.resetAllTrades();
+            access.logEdit("Reset All Trades", "all data", "cleared");
+            access.lockToTrader();
+            setShowReset(false);
+          }
+          return ok;
+        }}
+      />
+
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -50,6 +67,7 @@ export default function Index() {
           onRequestUnlock={() => setShowPinEntry(true)}
           onLock={access.lockToTrader}
           onShowLog={() => setShowEditLog(true)}
+          onReset={() => setShowReset(true)}
         />
       </div>
 
