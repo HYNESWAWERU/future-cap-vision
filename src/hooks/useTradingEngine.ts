@@ -167,6 +167,11 @@ export function useTradingEngine() {
     setVerified({});
   }, []);
 
+  const resetAllTrades = useCallback(() => {
+    setActuals({});
+    setVerified({});
+  }, []);
+
   return {
     startingCapital, setStartingCapital,
     dailyTargetPercent, setDailyTargetPercent,
