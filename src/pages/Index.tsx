@@ -10,12 +10,14 @@ import TradingCharts from "@/components/TradingCharts";
 import RoleBadge from "@/components/RoleBadge";
 import { PinSetupDialog, PinEntryDialog } from "@/components/PinDialog";
 import EditLogDialog from "@/components/EditLogDialog";
+import ResetTradesDialog from "@/components/ResetTradesDialog";
 
 export default function Index() {
   const engine = useTradingEngine();
   const access = useAccessControl();
   const [showPinEntry, setShowPinEntry] = useState(false);
   const [showEditLog, setShowEditLog] = useState(false);
+  const [showReset, setShowReset] = useState(false);
 
   const readOnly = !access.isEditable;
 
