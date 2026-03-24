@@ -37,6 +37,21 @@ export default function Index() {
 
       <EditLogDialog open={showEditLog} onClose={() => setShowEditLog(false)} entries={access.editLog} />
 
+      <ResetTradesDialog
+        open={showReset}
+        onClose={() => setShowReset(false)}
+        onConfirm={async (pin) => {
+          const ok = await access.unlockPartner(pin);
+          if (ok) {
+            engine.resetAllTrades();
+            access.logEdit("Reset All Trades", "all data", "cleared");
+            access.lockToTrader();
+            setShowReset(false);
+          }
+          return ok;
+        }}
+      />
+
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
