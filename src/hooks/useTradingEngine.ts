@@ -180,5 +180,6 @@ export function useTradingEngine() {
     getProjection, summary,
     accountabilityPartner, setAccountabilityPartner,
     tradingStartDate, setTradingStartDate,
+    resetAllTrades,
   };
 }

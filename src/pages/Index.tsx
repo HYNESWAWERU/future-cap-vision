@@ -67,6 +67,7 @@ export default function Index() {
           onRequestUnlock={() => setShowPinEntry(true)}
           onLock={access.lockToTrader}
           onShowLog={() => setShowEditLog(true)}
+          onReset={() => setShowReset(true)}
         />
       </div>
 
