@@ -1,7 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { format } from "date-fns";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toKES, type DayEntry } from "@/hooks/useTradingEngine";
 
 interface Props {
@@ -14,12 +17,20 @@ interface Props {
 
 const fmt = (n: number) => n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const PAGE_SIZE = 31;
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
 
 export default function TradingTable({ entries, setActualResult, toggleVerified, readOnly = false, onEdit }: Props) {
-  const [page, setPage] = useState(0);
-  const totalPages = Math.ceil(entries.length / PAGE_SIZE);
-  const pageEntries = entries.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const [month, setMonth] = useState(() => new Date().getMonth());
+
+  const monthEntries = useMemo(
+    () => entries.filter((e) => e.date.getMonth() === month),
+    [entries, month]
+  );
+
+  const today = new Date().toDateString();
 
   const handleActual = useCallback((dayIndex: number, val: string, oldVal: number | null) => {
     if (readOnly) return;
@@ -35,16 +46,32 @@ export default function TradingTable({ entries, setActualResult, toggleVerified,
     onEdit?.("Verified", String(currentState), String(!currentState), dayIndex);
   }, [toggleVerified, readOnly, onEdit]);
 
+  const goToToday = () => setMonth(new Date().getMonth());
+
   return (
     <div className="rounded-lg border border-border bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border flex-wrap gap-2">
         <h3 className="text-sm font-semibold uppercase tracking-wider">Daily Trading Log</h3>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <button onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}
-            className="px-2 py-1 rounded bg-secondary hover:bg-muted disabled:opacity-30">Prev</button>
-          <span className="font-mono">{page + 1}/{totalPages}</span>
-          <button onClick={() => setPage(Math.min(totalPages - 1, page + 1))} disabled={page >= totalPages - 1}
-            className="px-2 py-1 rounded bg-secondary hover:bg-muted disabled:opacity-30">Next</button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setMonth(Math.max(0, month - 1))} disabled={month === 0}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
+            <SelectTrigger className="w-32 h-7 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {MONTHS.map((m, i) => (
+                <SelectItem key={i} value={String(i)}>{m}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setMonth(Math.min(11, month + 1))} disabled={month === 11}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={goToToday}>
+            <CalendarDays className="h-3 w-3" /> Today
+          </Button>
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -59,15 +86,34 @@ export default function TradingTable({ entries, setActualResult, toggleVerified,
               <th className="px-3 py-2 text-right">P/L ($)</th>
               <th className="px-3 py-2 text-right">P/L (KES)</th>
               <th className="px-3 py-2 text-right">Deviation</th>
+              <th className="px-3 py-2 text-center">Status</th>
               <th className="px-3 py-2 text-center">✓</th>
             </tr>
           </thead>
           <tbody>
-            {pageEntries.map((e) => {
+            {monthEntries.map((e) => {
+              const isToday = e.date.toDateString() === today;
               const pnlColor = e.dailyProfitLoss > 0 ? "text-profit" : e.dailyProfitLoss < 0 ? "text-loss" : "text-muted-foreground";
+
+              if (e.isBeforeStart) {
+                return (
+                  <tr key={e.dayOfYear} className="border-t border-border opacity-30">
+                    <td className="px-3 py-1.5 font-mono">{format(e.date, "dd MMM")}</td>
+                    <td colSpan={8} className="px-3 py-1.5 text-center text-muted-foreground italic">Before trading start</td>
+                    <td />
+                  </tr>
+                );
+              }
+
+              const statusLabel = e.isProjected
+                ? "⏳ Pending"
+                : e.verified
+                ? e.dailyProfitLoss >= 0 ? "✅ Verified" : "✅ Verified"
+                : "⚠️ Unverified";
+
               return (
-                <tr key={e.dayOfYear} className={`border-t border-border hover:bg-secondary/50 ${e.isProjected ? "opacity-50" : ""}`}>
-                  <td className="px-3 py-1.5 font-mono">{format(e.date, "dd MMM")}</td>
+                <tr key={e.dayOfYear} className={`border-t border-border hover:bg-secondary/50 ${e.isProjected ? "opacity-50" : ""} ${isToday ? "bg-primary/5 ring-1 ring-inset ring-primary/20" : ""}`}>
+                  <td className={`px-3 py-1.5 font-mono ${isToday ? "font-bold text-primary" : ""}`}>{format(e.date, "dd MMM")}</td>
                   <td className="px-3 py-1.5 font-mono text-right">{fmt(e.startingCapital)}</td>
                   <td className="px-3 py-1.5 font-mono text-right text-muted-foreground">{fmt(e.targetCapital)}</td>
                   <td className="px-3 py-1.5 text-right">
@@ -90,6 +136,7 @@ export default function TradingTable({ entries, setActualResult, toggleVerified,
                   <td className={`px-3 py-1.5 font-mono text-right ${e.deviation > 0 ? "text-loss" : "text-profit"}`}>
                     {e.deviation >= 0 ? "+" : ""}{fmt(e.deviation)}
                   </td>
+                  <td className="px-3 py-1.5 text-center text-xs whitespace-nowrap">{statusLabel}</td>
                   <td className="px-3 py-1.5 text-center">
                     <Checkbox checked={e.verified} onCheckedChange={() => handleVerified(e.dayOfYear, e.verified)}
                       disabled={readOnly}

@@ -11,6 +11,7 @@ export interface DayEntry {
   deviation: number;
   verified: boolean;
   isProjected: boolean;
+  isBeforeStart: boolean;
 }
 
 export interface TradingState {
@@ -19,6 +20,7 @@ export interface TradingState {
   year: number;
   entries: DayEntry[];
   accountabilityPartner: string;
+  tradingStartDate: string | null;
 }
 
 const KES_RATE = 129;
@@ -51,12 +53,21 @@ export function useTradingEngine() {
   const [actuals, setActuals] = useState<Record<number, number | null>>(() => loadState()?.actuals ?? {});
   const [verified, setVerified] = useState<Record<number, boolean>>(() => loadState()?.verified ?? {});
   const [accountabilityPartner, setAccountabilityPartner] = useState(() => loadState()?.accountabilityPartner ?? "");
+  const [tradingStartDate, setTradingStartDate] = useState<string | null>(() => loadState()?.tradingStartDate ?? null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      startingCapital, dailyTargetPercent, year, actuals, verified, accountabilityPartner,
+      startingCapital, dailyTargetPercent, year, actuals, verified, accountabilityPartner, tradingStartDate,
     }));
-  }, [startingCapital, dailyTargetPercent, year, actuals, verified, accountabilityPartner]);
+  }, [startingCapital, dailyTargetPercent, year, actuals, verified, accountabilityPartner, tradingStartDate]);
+
+  const startDayIndex = useMemo(() => {
+    if (!tradingStartDate) return 0;
+    const days = getDaysInYear(year);
+    const target = new Date(tradingStartDate).toDateString();
+    const idx = days.findIndex((d) => d.toDateString() === target);
+    return idx === -1 ? 0 : idx;
+  }, [tradingStartDate, year]);
 
   const entries = useMemo(() => {
     const days = getDaysInYear(year);
@@ -66,7 +77,26 @@ export function useTradingEngine() {
     let prevClosing = startingCapital;
 
     for (let i = 0; i < days.length; i++) {
-      const start = i === 0 ? startingCapital : prevClosing;
+      const isBeforeStart = i < startDayIndex;
+
+      if (isBeforeStart) {
+        result.push({
+          date: days[i],
+          dayOfYear: i,
+          startingCapital: 0,
+          targetCapital: 0,
+          actualResult: null,
+          closingCapital: 0,
+          dailyProfitLoss: 0,
+          deviation: 0,
+          verified: false,
+          isProjected: true,
+          isBeforeStart: true,
+        });
+        continue;
+      }
+
+      const start = i === startDayIndex ? startingCapital : prevClosing;
       const target = start * (1 + rate);
       const actual = actuals[i] ?? null;
       const closing = actual !== null ? actual : target;
@@ -85,12 +115,13 @@ export function useTradingEngine() {
         deviation: dev,
         verified: verified[i] ?? false,
         isProjected,
+        isBeforeStart: false,
       });
 
       prevClosing = closing;
     }
     return result;
-  }, [startingCapital, dailyTargetPercent, year, actuals, verified]);
+  }, [startingCapital, dailyTargetPercent, year, actuals, verified, startDayIndex]);
 
   const setActualResult = useCallback((dayIndex: number, value: number | null) => {
     setActuals((prev) => ({ ...prev, [dayIndex]: value }));
@@ -107,6 +138,7 @@ export function useTradingEngine() {
       );
       if (dayIndex === -1) return null;
       const entry = entries[dayIndex];
+      if (entry.isBeforeStart) return null;
       return {
         expectedCapital: entry.closingCapital,
         expectedProfit: entry.closingCapital - startingCapital,
@@ -116,15 +148,17 @@ export function useTradingEngine() {
     [entries, startingCapital]
   );
 
+  // Only count verified days in summary
   const summary = useMemo(() => {
-    const filledEntries = entries.filter((e) => !e.isProjected);
-    const lastFilled = filledEntries[filledEntries.length - 1];
+    const verifiedEntries = entries.filter((e) => !e.isProjected && !e.isBeforeStart && e.verified);
+    const allFilledEntries = entries.filter((e) => !e.isProjected && !e.isBeforeStart);
+    const lastFilled = allFilledEntries[allFilledEntries.length - 1];
     const currentCapital = lastFilled ? lastFilled.closingCapital : startingCapital;
     const totalPnl = currentCapital - startingCapital;
     const growthPercent = (totalPnl / startingCapital) * 100;
-    const winDays = filledEntries.filter((e) => e.dailyProfitLoss > 0).length;
-    const lossDays = filledEntries.filter((e) => e.dailyProfitLoss < 0).length;
-    return { currentCapital, totalPnl, growthPercent, winDays, lossDays, tradingDays: filledEntries.length };
+    const winDays = verifiedEntries.filter((e) => e.dailyProfitLoss > 0).length;
+    const lossDays = verifiedEntries.filter((e) => e.dailyProfitLoss < 0).length;
+    return { currentCapital, totalPnl, growthPercent, winDays, lossDays, tradingDays: verifiedEntries.length };
   }, [entries, startingCapital]);
 
   const resetYear = useCallback((newYear: number) => {
@@ -140,5 +174,6 @@ export function useTradingEngine() {
     entries, setActualResult, toggleVerified,
     getProjection, summary,
     accountabilityPartner, setAccountabilityPartner,
+    tradingStartDate, setTradingStartDate,
   };
 }

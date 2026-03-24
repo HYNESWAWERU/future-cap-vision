@@ -21,24 +21,20 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-5 max-w-[1400px] mx-auto">
-      {/* PIN Setup (first time) */}
       <PinSetupDialog open={!access.isPinSet} onSetPin={access.setPin} />
 
-      {/* PIN Entry */}
       <PinEntryDialog
         open={showPinEntry}
         onClose={() => setShowPinEntry(false)}
-        onSubmit={(pin) => {
-          const ok = access.unlockPartner(pin);
+        onSubmit={async (pin) => {
+          const ok = await access.unlockPartner(pin);
           if (ok) setShowPinEntry(false);
           return ok;
         }}
       />
 
-      {/* Edit Log */}
       <EditLogDialog open={showEditLog} onClose={() => setShowEditLog(false)} entries={access.editLog} />
 
-      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -66,6 +62,8 @@ export default function Index() {
         setAccountabilityPartner={engine.setAccountabilityPartner}
         year={engine.year}
         resetYear={engine.resetYear}
+        tradingStartDate={engine.tradingStartDate}
+        setTradingStartDate={engine.setTradingStartDate}
         readOnly={readOnly}
         onEdit={access.logEdit}
       />
