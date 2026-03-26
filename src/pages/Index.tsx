@@ -21,6 +21,10 @@ export default function Index() {
 
   const readOnly = !access.isEditable;
 
+  const startYear = new Date(engine.tradingStartDate).getFullYear();
+  const endYear = new Date(engine.tradingEndDate).getFullYear();
+  const yearLabel = startYear === endYear ? String(startYear) : `${startYear}–${endYear}`;
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-5 max-w-[1400px] mx-auto">
       <PinSetupDialog open={!access.isPinSet} onSetPin={access.setPin} />
@@ -59,7 +63,7 @@ export default function Index() {
           </div>
           <div>
             <h1 className="text-lg font-bold tracking-tight">Trading Performance Tracker</h1>
-            <p className="text-xs text-muted-foreground">Compound growth engine · {engine.year}</p>
+            <p className="text-xs text-muted-foreground">Compound growth engine · {yearLabel}</p>
           </div>
         </div>
         <RoleBadge
@@ -78,10 +82,10 @@ export default function Index() {
         setDailyTargetPercent={engine.setDailyTargetPercent}
         accountabilityPartner={engine.accountabilityPartner}
         setAccountabilityPartner={engine.setAccountabilityPartner}
-        year={engine.year}
-        resetYear={engine.resetYear}
         tradingStartDate={engine.tradingStartDate}
         setTradingStartDate={engine.setTradingStartDate}
+        tradingEndDate={engine.tradingEndDate}
+        setTradingEndDate={engine.setTradingEndDate}
         readOnly={readOnly}
         onEdit={access.logEdit}
       />
@@ -90,15 +94,22 @@ export default function Index() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div className="xl:col-span-2">
-          <TradingCharts entries={engine.entries} />
+          <TradingCharts entries={engine.entries} startingCapital={engine.startingCapital} />
         </div>
-        <ProjectionLookup year={engine.year} getProjection={engine.getProjection} />
+        <ProjectionLookup
+          tradingStartDate={engine.tradingStartDate}
+          tradingEndDate={engine.tradingEndDate}
+          getProjection={engine.getProjection}
+        />
       </div>
 
       <TradingTable
         entries={engine.entries}
         setActualResult={engine.setActualResult}
         toggleVerified={engine.toggleVerified}
+        setDeposit={engine.setDeposit}
+        setWithdrawal={engine.setWithdrawal}
+        availableYears={engine.availableYears}
         readOnly={readOnly}
         onEdit={access.logEdit}
       />

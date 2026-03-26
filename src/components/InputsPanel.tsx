@@ -13,10 +13,10 @@ interface Props {
   setDailyTargetPercent: (v: number) => void;
   accountabilityPartner: string;
   setAccountabilityPartner: (v: string) => void;
-  year: number;
-  resetYear: (y: number) => void;
-  tradingStartDate: string | null;
-  setTradingStartDate: (d: string | null) => void;
+  tradingStartDate: string;
+  setTradingStartDate: (d: string) => void;
+  tradingEndDate: string;
+  setTradingEndDate: (d: string) => void;
   readOnly?: boolean;
   onEdit?: (field: string, oldValue: string, newValue: string) => void;
 }
@@ -25,10 +25,12 @@ export default function InputsPanel({
   startingCapital, setStartingCapital,
   dailyTargetPercent, setDailyTargetPercent,
   accountabilityPartner, setAccountabilityPartner,
-  year, resetYear, tradingStartDate, setTradingStartDate,
+  tradingStartDate, setTradingStartDate,
+  tradingEndDate, setTradingEndDate,
   readOnly = false, onEdit,
 }: Props) {
-  const startDate = tradingStartDate ? new Date(tradingStartDate) : undefined;
+  const startDate = new Date(tradingStartDate);
+  const endDate = new Date(tradingEndDate);
 
   return (
     <div className="flex flex-wrap items-end gap-4 rounded-lg border border-border bg-card p-4">
@@ -67,53 +69,50 @@ export default function InputsPanel({
         />
       </div>
       <div className="space-y-1">
-        <label className="text-xs text-muted-foreground uppercase tracking-wider">Year</label>
-        <Input
-          type="number" min={2020} max={2030}
-          value={year}
-          onChange={(e) => {
-            if (readOnly) return;
-            const v = Number(e.target.value);
-            onEdit?.("Year", String(year), String(v));
-            resetYear(v);
-          }}
-          disabled={readOnly}
-          className="w-28 font-mono bg-secondary border-border disabled:opacity-40"
-        />
-      </div>
-      <div className="space-y-1">
         <label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-          <CalendarIcon className="h-3 w-3" /> Trading Start Date
+          <CalendarIcon className="h-3 w-3" /> Start Date
         </label>
         <Popover>
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              disabled={readOnly}
-              className={cn(
-                "w-44 justify-start text-left font-mono text-xs bg-secondary border-border disabled:opacity-40",
-                !startDate && "text-muted-foreground"
-              )}
-            >
+            <Button variant="outline" disabled={readOnly}
+              className={cn("w-44 justify-start text-left font-mono text-xs bg-secondary border-border disabled:opacity-40")}>
               <CalendarIcon className="mr-2 h-3 w-3" />
-              {startDate ? format(startDate, "dd MMM yyyy") : "Jan 1st (default)"}
+              {format(startDate, "dd MMM yyyy")}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={startDate}
+            <Calendar mode="single" selected={startDate}
               onSelect={(d) => {
-                if (readOnly) return;
-                const newVal = d ? d.toISOString() : null;
-                onEdit?.("Trading Start Date", tradingStartDate ?? "", newVal ?? "");
+                if (readOnly || !d) return;
+                const newVal = d.toISOString().split("T")[0];
+                onEdit?.("Start Date", tradingStartDate, newVal);
                 setTradingStartDate(newVal);
               }}
-              defaultMonth={new Date(year, 0)}
-              fromDate={new Date(year, 0, 1)}
-              toDate={new Date(year, 11, 31)}
-              className={cn("p-3 pointer-events-auto")}
-            />
+              className={cn("p-3 pointer-events-auto")} />
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="space-y-1">
+        <label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+          <CalendarIcon className="h-3 w-3" /> End Date
+        </label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" disabled={readOnly}
+              className={cn("w-44 justify-start text-left font-mono text-xs bg-secondary border-border disabled:opacity-40")}>
+              <CalendarIcon className="mr-2 h-3 w-3" />
+              {format(endDate, "dd MMM yyyy")}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar mode="single" selected={endDate}
+              onSelect={(d) => {
+                if (readOnly || !d) return;
+                const newVal = d.toISOString().split("T")[0];
+                onEdit?.("End Date", tradingEndDate, newVal);
+                setTradingEndDate(newVal);
+              }}
+              className={cn("p-3 pointer-events-auto")} />
           </PopoverContent>
         </Popover>
       </div>
