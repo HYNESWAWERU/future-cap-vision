@@ -5,20 +5,30 @@ import type { DayEntry } from "@/hooks/useTradingEngine";
 
 interface Props {
   entries: DayEntry[];
+  startingCapital: number;
 }
 
-export default function TradingCharts({ entries }: Props) {
+export default function TradingCharts({ entries, startingCapital }: Props) {
   const filledEntries = useMemo(() => entries.filter((e) => !e.isProjected), [entries]);
-  
-  // Show first 90 days of projected if no actuals
   const chartEntries = filledEntries.length > 0 ? filledEntries : entries.slice(0, 90);
 
-  const capitalData = useMemo(() =>
-    chartEntries.map((e) => ({
-      date: format(e.date, "dd MMM"),
-      actual: e.closingCapital,
-      target: e.targetCapital,
-    })), [chartEntries]);
+  // Account equity curve (real balance) and adjusted equity (trading only, no cashflow)
+  const capitalData = useMemo(() => {
+    let cumulativeDeposits = 0;
+    let cumulativeWithdrawals = 0;
+    return chartEntries.map((e) => {
+      cumulativeDeposits += e.deposit;
+      cumulativeWithdrawals += e.withdrawal;
+      const netCashflow = cumulativeDeposits - cumulativeWithdrawals;
+      const tradingOnly = e.closingCapital - netCashflow;
+      return {
+        date: format(e.date, "dd MMM"),
+        account: e.closingCapital,
+        tradingOnly,
+        target: e.targetCapital,
+      };
+    });
+  }, [chartEntries]);
 
   const pnlData = useMemo(() =>
     chartEntries.map((e) => ({
@@ -29,7 +39,7 @@ export default function TradingCharts({ entries }: Props) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div className="rounded-lg border border-border bg-card p-4 space-y-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Capital Growth</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Equity Curves</h3>
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={capitalData}>
             <defs>
@@ -43,7 +53,8 @@ export default function TradingCharts({ entries }: Props) {
             <YAxis tick={{ fontSize: 10, fill: "hsl(215, 12%, 50%)" }} />
             <Tooltip contentStyle={{ background: "hsl(220, 18%, 10%)", border: "1px solid hsl(220, 14%, 18%)", borderRadius: 8, fontSize: 12 }} />
             <Area type="monotone" dataKey="target" stroke="hsl(215, 12%, 35%)" strokeDasharray="4 4" fill="none" name="Target" />
-            <Area type="monotone" dataKey="actual" stroke="hsl(142, 72%, 45%)" fill="url(#capitalGrad)" name="Actual" />
+            <Area type="monotone" dataKey="tradingOnly" stroke="hsl(38, 92%, 55%)" strokeDasharray="2 2" fill="none" name="Trading Only" />
+            <Area type="monotone" dataKey="account" stroke="hsl(142, 72%, 45%)" fill="url(#capitalGrad)" name="Account Balance" />
           </AreaChart>
         </ResponsiveContainer>
       </div>

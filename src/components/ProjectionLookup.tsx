@@ -8,13 +8,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { toKES } from "@/hooks/useTradingEngine";
 
 interface Props {
-  year: number;
+  tradingStartDate: string;
+  tradingEndDate: string;
   getProjection: (date: Date) => { expectedCapital: number; expectedProfit: number; growthPercent: number } | null;
 }
 
-export default function ProjectionLookup({ year, getProjection }: Props) {
+export default function ProjectionLookup({ tradingStartDate, tradingEndDate, getProjection }: Props) {
   const [date, setDate] = useState<Date>();
   const projection = date ? getProjection(date) : null;
+  const fromDate = new Date(tradingStartDate);
+  const toDate = new Date(tradingEndDate);
 
   return (
     <div className="rounded-lg border border-border bg-card p-4 space-y-3">
@@ -33,8 +36,8 @@ export default function ProjectionLookup({ year, getProjection }: Props) {
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               mode="single" selected={date} onSelect={setDate}
-              disabled={(d) => d.getFullYear() !== year}
-              defaultMonth={new Date(year, 0)}
+              fromDate={fromDate} toDate={toDate}
+              defaultMonth={fromDate}
               className="p-3 pointer-events-auto"
             />
           </PopoverContent>
@@ -52,6 +55,7 @@ export default function ProjectionLookup({ year, getProjection }: Props) {
             <p className={`font-mono font-bold ${projection.expectedProfit >= 0 ? "text-profit" : "text-loss"}`}>
               {projection.expectedProfit >= 0 ? "+" : ""}${projection.expectedProfit.toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </p>
+            <p className="text-xs text-muted-foreground font-mono">KES {toKES(projection.expectedProfit).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
           </div>
           <div className="space-y-0.5">
             <span className="text-xs text-muted-foreground">Growth from Start</span>
