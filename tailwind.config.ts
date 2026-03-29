@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Space Grotesk', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
@@ -54,6 +54,8 @@ export default {
         profit: "hsl(var(--profit))",
         loss: "hsl(var(--loss))",
         warning: "hsl(var(--warning))",
+        gold: "hsl(var(--gold))",
+        "gold-muted": "hsl(var(--gold-muted))",
         "chart-grid": "hsl(var(--chart-grid))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -84,11 +86,16 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.7" },
         },
+        "fade-in": {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "fade-in": "fade-in 0.4s ease-out",
       },
     },
   },
