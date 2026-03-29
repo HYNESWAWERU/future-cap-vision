@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -85,15 +86,20 @@ export default function TradingTable({ entries, setActualResult, toggleVerified,
   };
 
   return (
-    <div className="rounded-lg border border-border bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border flex-wrap gap-2">
-        <h3 className="text-sm font-semibold uppercase tracking-wider">Daily Trading Log</h3>
+    <motion.div
+      className="glass-card rounded-xl overflow-hidden"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <div className="flex items-center justify-between px-5 py-3 border-b border-border/50 flex-wrap gap-2">
+        <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gradient-gold">Daily Trading Log</h3>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10 hover:text-primary transition-colors" onClick={prevMonth}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
-            <SelectTrigger className="w-32 h-7 text-xs">
+            <SelectTrigger className="w-32 h-7 text-xs bg-muted/50 border-border/50">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -104,7 +110,7 @@ export default function TradingTable({ entries, setActualResult, toggleVerified,
           </Select>
           {availableYears.length > 1 && (
             <Select value={String(viewYear)} onValueChange={(v) => setViewYear(Number(v))}>
-              <SelectTrigger className="w-24 h-7 text-xs">
+              <SelectTrigger className="w-24 h-7 text-xs bg-muted/50 border-border/50">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -114,34 +120,34 @@ export default function TradingTable({ entries, setActualResult, toggleVerified,
               </SelectContent>
             </Select>
           )}
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10 hover:text-primary transition-colors" onClick={nextMonth}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={goToToday}>
+          <Button variant="outline" size="sm" className="h-7 text-xs gap-1 border-border/50 hover:border-primary/30 hover:text-primary" onClick={goToToday}>
             <CalendarDays className="h-3 w-3" /> Today
           </Button>
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
-          <thead className="sticky top-0 bg-secondary">
-            <tr className="text-muted-foreground uppercase tracking-wider">
-              <th className="px-3 py-2 text-left">Date</th>
-              <th className="px-3 py-2 text-right">Deposit ($)</th>
-              <th className="px-3 py-2 text-right">Withdraw ($)</th>
-              <th className="px-3 py-2 text-right">Starting ($)</th>
-              <th className="px-3 py-2 text-right">Target ($)</th>
-              <th className="px-3 py-2 text-right w-28">Actual ($)</th>
-              <th className="px-3 py-2 text-right">Closing ($)</th>
-              <th className="px-3 py-2 text-right">P/L ($)</th>
-              <th className="px-3 py-2 text-right">P/L (KES)</th>
-              <th className="px-3 py-2 text-right">% P/L</th>
-              <th className="px-3 py-2 text-center">Status</th>
-              <th className="px-3 py-2 text-center">✓</th>
+          <thead className="sticky top-0 bg-muted/80 backdrop-blur-sm">
+            <tr className="text-muted-foreground uppercase tracking-[0.15em]">
+              <th className="px-3 py-2.5 text-left text-[10px]">Date</th>
+              <th className="px-3 py-2.5 text-right text-[10px]">Deposit ($)</th>
+              <th className="px-3 py-2.5 text-right text-[10px]">Withdraw ($)</th>
+              <th className="px-3 py-2.5 text-right text-[10px]">Starting ($)</th>
+              <th className="px-3 py-2.5 text-right text-[10px]">Target ($)</th>
+              <th className="px-3 py-2.5 text-right w-28 text-[10px]">Actual ($)</th>
+              <th className="px-3 py-2.5 text-right text-[10px]">Closing ($)</th>
+              <th className="px-3 py-2.5 text-right text-[10px]">P/L ($)</th>
+              <th className="px-3 py-2.5 text-right text-[10px]">P/L (KES)</th>
+              <th className="px-3 py-2.5 text-right text-[10px]">% P/L</th>
+              <th className="px-3 py-2.5 text-center text-[10px]">Status</th>
+              <th className="px-3 py-2.5 text-center text-[10px]">✓</th>
             </tr>
           </thead>
           <tbody>
-            {monthEntries.map((e) => {
+            {monthEntries.map((e, i) => {
               const key = dateKey(e.date);
               const isToday = e.date.toDateString() === today;
               const pnlColor = e.dailyProfitLoss > 0 ? "text-profit" : e.dailyProfitLoss < 0 ? "text-loss" : "text-muted-foreground";
@@ -154,24 +160,30 @@ export default function TradingTable({ entries, setActualResult, toggleVerified,
                 : "⚠️ Unverified";
 
               return (
-                <tr key={key} className={`border-t border-border hover:bg-secondary/50 ${e.isProjected ? "opacity-50" : ""} ${isToday ? "bg-primary/5 ring-1 ring-inset ring-primary/20" : ""}`}>
+                <motion.tr
+                  key={key}
+                  className={`border-t border-border/30 transition-colors duration-150 hover:bg-primary/[0.03] ${e.isProjected ? "opacity-40" : ""} ${isToday ? "bg-primary/[0.06] ring-1 ring-inset ring-primary/20" : ""}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: e.isProjected ? 0.4 : 1 }}
+                  transition={{ delay: i * 0.01 }}
+                >
                   <td className={`px-3 py-1.5 font-mono ${isToday ? "font-bold text-primary" : ""}`}>{format(e.date, "dd MMM yyyy")}</td>
                   <td className="px-3 py-1.5 text-right">
                     <Input type="number" step={0.01} placeholder="—" defaultValue={e.deposit || ""}
                       onBlur={(ev) => handleDeposit(key, ev.target.value, e.deposit)} disabled={readOnly}
-                      className="h-6 w-24 text-xs font-mono bg-secondary border-border text-right ml-auto disabled:opacity-40" />
+                      className="h-6 w-24 text-xs font-mono bg-muted/30 border-border/30 text-right ml-auto disabled:opacity-40 focus:border-primary/40" />
                   </td>
                   <td className="px-3 py-1.5 text-right">
                     <Input type="number" step={0.01} placeholder="—" defaultValue={e.withdrawal || ""}
                       onBlur={(ev) => handleWithdrawal(key, ev.target.value, e.withdrawal)} disabled={readOnly}
-                      className="h-6 w-24 text-xs font-mono bg-secondary border-border text-right ml-auto disabled:opacity-40" />
+                      className="h-6 w-24 text-xs font-mono bg-muted/30 border-border/30 text-right ml-auto disabled:opacity-40 focus:border-primary/40" />
                   </td>
                   <td className="px-3 py-1.5 font-mono text-right">{fmt(e.startingCapital)}</td>
                   <td className="px-3 py-1.5 font-mono text-right text-muted-foreground">{fmt(e.targetCapital)}</td>
                   <td className="px-3 py-1.5 text-right">
                     <Input type="number" step={0.01} placeholder="—" defaultValue={e.actualResult ?? ""}
                       onBlur={(ev) => handleActual(key, ev.target.value, e.actualResult)} disabled={readOnly}
-                      className="h-6 w-28 text-xs font-mono bg-secondary border-border text-right ml-auto disabled:opacity-40" />
+                      className="h-6 w-28 text-xs font-mono bg-muted/30 border-border/30 text-right ml-auto disabled:opacity-40 focus:border-primary/40" />
                   </td>
                   <td className="px-3 py-1.5 font-mono text-right">{fmt(e.closingCapital)}</td>
                   <td className={`px-3 py-1.5 font-mono text-right ${pnlColor}`}>
@@ -189,12 +201,12 @@ export default function TradingTable({ entries, setActualResult, toggleVerified,
                       disabled={readOnly}
                       className="data-[state=checked]:bg-primary data-[state=checked]:border-primary disabled:opacity-40" />
                   </td>
-                </tr>
+                </motion.tr>
               );
             })}
           </tbody>
         </table>
       </div>
-    </div>
+    </motion.div>
   );
 }

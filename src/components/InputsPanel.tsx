@@ -33,10 +33,10 @@ export default function InputsPanel({
   const endDate = new Date(tradingEndDate);
 
   return (
-    <div className="flex flex-wrap items-end gap-4 rounded-lg border border-border bg-card p-4">
-      <div className="space-y-1">
-        <label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-          <DollarSign className="h-3 w-3" /> Starting Capital
+    <div className="glass-card rounded-xl p-4 flex flex-wrap items-end gap-4">
+      <div className="space-y-1.5">
+        <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-1 font-medium">
+          <DollarSign className="h-3 w-3 text-primary" /> Starting Capital
         </label>
         <Input
           type="number" min={0} step={100}
@@ -48,12 +48,12 @@ export default function InputsPanel({
             setStartingCapital(v);
           }}
           disabled={readOnly}
-          className="w-40 font-mono bg-secondary border-border disabled:opacity-40"
+          className="w-40 font-mono bg-muted/50 border-border/50 disabled:opacity-40 focus:border-primary/50 transition-colors"
         />
       </div>
-      <div className="space-y-1">
-        <label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-          <Percent className="h-3 w-3" /> Daily Target %
+      <div className="space-y-1.5">
+        <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-1 font-medium">
+          <Percent className="h-3 w-3 text-primary" /> Daily Target %
         </label>
         <Input
           type="number" min={0} max={100} step={0.01}
@@ -65,17 +65,17 @@ export default function InputsPanel({
             setDailyTargetPercent(v);
           }}
           disabled={readOnly}
-          className="w-32 font-mono bg-secondary border-border disabled:opacity-40"
+          className="w-32 font-mono bg-muted/50 border-border/50 disabled:opacity-40 focus:border-primary/50 transition-colors"
         />
       </div>
-      <div className="space-y-1">
-        <label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-          <CalendarIcon className="h-3 w-3" /> Start Date
+      <div className="space-y-1.5">
+        <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-1 font-medium">
+          <CalendarIcon className="h-3 w-3 text-primary" /> Start Date
         </label>
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" disabled={readOnly}
-              className={cn("w-44 justify-start text-left font-mono text-xs bg-secondary border-border disabled:opacity-40")}>
+              className={cn("w-44 justify-start text-left font-mono text-xs bg-muted/50 border-border/50 disabled:opacity-40 hover:border-primary/30")}>
               <CalendarIcon className="mr-2 h-3 w-3" />
               {format(startDate, "dd MMM yyyy")}
             </Button>
@@ -92,14 +92,14 @@ export default function InputsPanel({
           </PopoverContent>
         </Popover>
       </div>
-      <div className="space-y-1">
-        <label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-          <CalendarIcon className="h-3 w-3" /> End Date
+      <div className="space-y-1.5">
+        <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-1 font-medium">
+          <CalendarIcon className="h-3 w-3 text-primary" /> End Date
         </label>
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" disabled={readOnly}
-              className={cn("w-44 justify-start text-left font-mono text-xs bg-secondary border-border disabled:opacity-40")}>
+              className={cn("w-44 justify-start text-left font-mono text-xs bg-muted/50 border-border/50 disabled:opacity-40 hover:border-primary/30")}>
               <CalendarIcon className="mr-2 h-3 w-3" />
               {format(endDate, "dd MMM yyyy")}
             </Button>
@@ -116,9 +116,9 @@ export default function InputsPanel({
           </PopoverContent>
         </Popover>
       </div>
-      <div className="space-y-1">
-        <label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-          <User className="h-3 w-3" /> Accountability Partner
+      <div className="space-y-1.5">
+        <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-1 font-medium">
+          <User className="h-3 w-3 text-primary" /> Accountability Partner
         </label>
         <Input
           type="text" placeholder="Partner name"
@@ -129,7 +129,7 @@ export default function InputsPanel({
             setAccountabilityPartner(e.target.value);
           }}
           disabled={readOnly}
-          className="w-44 bg-secondary border-border disabled:opacity-40"
+          className="w-44 bg-muted/50 border-border/50 disabled:opacity-40 focus:border-primary/50 transition-colors"
         />
       </div>
     </div>
