@@ -46,7 +46,7 @@ export default function LaunchScreen({ show, onComplete }: Props) {
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }}
             >
-              <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center glow-blue shadow-lg">
+              <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary to-gold-muted flex items-center justify-center glow-blue shadow-lg">
                 <Activity className="h-10 w-10 text-primary-foreground" />
               </div>
               <motion.div
