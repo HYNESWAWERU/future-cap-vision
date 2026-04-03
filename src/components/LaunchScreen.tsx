@@ -104,7 +104,7 @@ export default function LaunchScreen({ show, onComplete }: Props) {
               transition={{ delay: 1.3 }}
             >
               <motion.div
-                className="h-full bg-gradient-to-r from-primary via-blue-400 to-primary rounded-full"
+                className="h-full bg-gradient-to-r from-primary via-gold-muted to-primary rounded-full"
                 initial={{ width: "0%" }}
                 animate={{ width: "100%" }}
                 transition={{ delay: 1.4, duration: 1.5, ease: "easeInOut" }}
