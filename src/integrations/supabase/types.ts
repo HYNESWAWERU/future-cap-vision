@@ -14,13 +14,182 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      edit_log: {
+        Row: {
+          created_at: string
+          day_index: number | null
+          field: string
+          id: string
+          new_value: string
+          old_value: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_index?: number | null
+          field: string
+          id?: string
+          new_value?: string
+          old_value?: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          day_index?: number | null
+          field?: string
+          id?: string
+          new_value?: string
+          old_value?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "edit_log_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "trading_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "edit_log_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "trading_sessions_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_entries: {
+        Row: {
+          actual_result: number | null
+          created_at: string
+          deposit: number
+          entry_date: string
+          id: string
+          session_id: string
+          updated_at: string
+          verified: boolean
+          withdrawal: number
+        }
+        Insert: {
+          actual_result?: number | null
+          created_at?: string
+          deposit?: number
+          entry_date: string
+          id?: string
+          session_id: string
+          updated_at?: string
+          verified?: boolean
+          withdrawal?: number
+        }
+        Update: {
+          actual_result?: number | null
+          created_at?: string
+          deposit?: number
+          entry_date?: string
+          id?: string
+          session_id?: string
+          updated_at?: string
+          verified?: boolean
+          withdrawal?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_entries_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "trading_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_entries_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "trading_sessions_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trading_sessions: {
+        Row: {
+          accountability_partner: string
+          created_at: string
+          daily_target_percent: number
+          id: string
+          pin_hash: string | null
+          starting_capital: number
+          trading_end_date: string
+          trading_start_date: string
+          updated_at: string
+        }
+        Insert: {
+          accountability_partner?: string
+          created_at?: string
+          daily_target_percent?: number
+          id?: string
+          pin_hash?: string | null
+          starting_capital?: number
+          trading_end_date?: string
+          trading_start_date?: string
+          updated_at?: string
+        }
+        Update: {
+          accountability_partner?: string
+          created_at?: string
+          daily_target_percent?: number
+          id?: string
+          pin_hash?: string | null
+          starting_capital?: number
+          trading_end_date?: string
+          trading_start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      trading_sessions_public: {
+        Row: {
+          accountability_partner: string | null
+          created_at: string | null
+          daily_target_percent: number | null
+          has_pin: boolean | null
+          id: string | null
+          starting_capital: number | null
+          trading_end_date: string | null
+          trading_start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          accountability_partner?: string | null
+          created_at?: string | null
+          daily_target_percent?: number | null
+          has_pin?: never
+          id?: string | null
+          starting_capital?: number | null
+          trading_end_date?: string | null
+          trading_start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          accountability_partner?: string | null
+          created_at?: string | null
+          daily_target_percent?: number | null
+          has_pin?: never
+          id?: string | null
+          starting_capital?: number | null
+          trading_end_date?: string | null
+          trading_start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      verify_session_pin: {
+        Args: { provided_hash: string; session_uuid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
