@@ -12,7 +12,7 @@ export default function LaunchScreen({ show, onComplete }: Props) {
       {show && (
         <motion.div
           className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
-          style={{ background: "hsl(220, 20%, 97%)" }}
+          style={{ background: "hsl(222, 47%, 6%)" }}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
