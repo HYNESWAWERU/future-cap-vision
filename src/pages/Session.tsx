@@ -111,8 +111,10 @@ export default function Session() {
         }}
       />
 
+      <AnimatedBackground />
+
       <motion.div
-        className="min-h-screen bg-background p-4 md:p-6 space-y-5 max-w-[1440px] mx-auto"
+        className="relative z-10 min-h-screen bg-transparent p-4 md:p-6 space-y-5 max-w-[1440px] mx-auto"
         variants={stagger}
         initial="hidden"
         animate="show"
@@ -120,9 +122,13 @@ export default function Session() {
         {/* Header */}
         <motion.div variants={fadeUp} className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-blue">
+            <motion.div
+              className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-blue"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
               <Activity className="h-5 w-5 text-primary-foreground" />
-            </div>
+            </motion.div>
             <div>
               <h1 className="text-lg font-bold tracking-tight text-gradient-gold">
                 COMPTRA
@@ -152,8 +158,10 @@ export default function Session() {
           </div>
         </motion.div>
 
-        {/* Ticker line */}
-        <motion.div variants={fadeUp} className="ticker-line" />
+        {/* Market Ticker */}
+        <motion.div variants={fadeUp}>
+          <MarketTicker />
+        </motion.div>
 
         {/* Inputs */}
         <motion.div variants={fadeUp}>
