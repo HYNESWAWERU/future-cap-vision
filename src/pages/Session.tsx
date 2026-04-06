@@ -9,6 +9,7 @@ import InputsPanel from "@/components/InputsPanel";
 import ProjectionLookup from "@/components/ProjectionLookup";
 import TradingTable from "@/components/TradingTable";
 import TradingCharts from "@/components/TradingCharts";
+import BtcKesChart from "@/components/BtcKesChart";
 import MarketTicker from "@/components/MarketTicker";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import RoleBadge from "@/components/RoleBadge";
@@ -186,16 +187,19 @@ export default function Session() {
           <SummaryCards {...engine.summary} />
         </motion.div>
 
-        {/* Charts + Projection */}
+        {/* Charts + Projection + BTC/KES */}
         <motion.div variants={fadeUp} className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <div className="xl:col-span-2">
             <TradingCharts entries={engine.entries} startingCapital={engine.startingCapital} />
           </div>
-          <ProjectionLookup
-            tradingStartDate={engine.tradingStartDate}
-            tradingEndDate={engine.tradingEndDate}
-            getProjection={engine.getProjection}
-          />
+          <div className="space-y-4">
+            <ProjectionLookup
+              tradingStartDate={engine.tradingStartDate}
+              tradingEndDate={engine.tradingEndDate}
+              getProjection={engine.getProjection}
+            />
+            <BtcKesChart />
+          </div>
         </motion.div>
 
         {/* Trading Table */}
