@@ -9,6 +9,8 @@ import InputsPanel from "@/components/InputsPanel";
 import ProjectionLookup from "@/components/ProjectionLookup";
 import TradingTable from "@/components/TradingTable";
 import TradingCharts from "@/components/TradingCharts";
+import MarketTicker from "@/components/MarketTicker";
+import AnimatedBackground from "@/components/AnimatedBackground";
 import RoleBadge from "@/components/RoleBadge";
 import { PinSetupDialog, PinEntryDialog } from "@/components/PinDialog";
 import EditLogDialog from "@/components/EditLogDialog";
@@ -53,10 +55,27 @@ export default function Session() {
   if (engine.loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Loading session...</p>
-        </div>
+        <AnimatedBackground />
+        <motion.div
+          className="flex flex-col items-center gap-4 z-10"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <motion.div
+            className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-blue"
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          >
+            <Activity className="h-8 w-8 text-primary-foreground" />
+          </motion.div>
+          <motion.p
+            className="text-muted-foreground font-mono text-sm"
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            Loading session...
+          </motion.p>
+        </motion.div>
       </div>
     );
   }
@@ -92,8 +111,10 @@ export default function Session() {
         }}
       />
 
+      <AnimatedBackground />
+
       <motion.div
-        className="min-h-screen bg-background p-4 md:p-6 space-y-5 max-w-[1440px] mx-auto"
+        className="relative z-10 min-h-screen bg-transparent p-4 md:p-6 space-y-5 max-w-[1440px] mx-auto"
         variants={stagger}
         initial="hidden"
         animate="show"
@@ -101,9 +122,13 @@ export default function Session() {
         {/* Header */}
         <motion.div variants={fadeUp} className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-blue">
+            <motion.div
+              className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-blue"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
               <Activity className="h-5 w-5 text-primary-foreground" />
-            </div>
+            </motion.div>
             <div>
               <h1 className="text-lg font-bold tracking-tight text-gradient-gold">
                 COMPTRA
@@ -133,8 +158,10 @@ export default function Session() {
           </div>
         </motion.div>
 
-        {/* Ticker line */}
-        <motion.div variants={fadeUp} className="ticker-line" />
+        {/* Market Ticker */}
+        <motion.div variants={fadeUp}>
+          <MarketTicker />
+        </motion.div>
 
         {/* Inputs */}
         <motion.div variants={fadeUp}>
