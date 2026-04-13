@@ -191,7 +191,7 @@ export function useCloudTradingEngine(sessionId: string | null) {
       const timerKey = `session-${field}`;
       if (debounceTimers.current[timerKey]) clearTimeout(debounceTimers.current[timerKey]);
       debounceTimers.current[timerKey] = setTimeout(async () => {
-        await supabase.from("trading_sessions").update({ [field]: value }).eq("id", sessionId);
+        await supabase.from("trading_sessions").update({ [field]: value } as any).eq("id", sessionId);
       }, 500);
     },
     [sessionId]

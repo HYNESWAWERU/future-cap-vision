@@ -10,6 +10,8 @@ import ProjectionLookup from "@/components/ProjectionLookup";
 import TradingTable from "@/components/TradingTable";
 import TradingCharts from "@/components/TradingCharts";
 import BtcKesChart from "@/components/BtcKesChart";
+import MultiCryptoCharts from "@/components/MultiCryptoCharts";
+import CryptoPortfolioTracker from "@/components/CryptoPortfolioTracker";
 import MarketTicker from "@/components/MarketTicker";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import RoleBadge from "@/components/RoleBadge";
@@ -199,6 +201,8 @@ export default function Session() {
               getProjection={engine.getProjection}
             />
             <BtcKesChart />
+            <MultiCryptoCharts />
+            <CryptoPortfolioTracker />
           </div>
         </motion.div>
 
