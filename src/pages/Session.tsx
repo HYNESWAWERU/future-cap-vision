@@ -9,9 +9,9 @@ import InputsPanel from "@/components/InputsPanel";
 import ProjectionLookup from "@/components/ProjectionLookup";
 import TradingTable from "@/components/TradingTable";
 import TradingCharts from "@/components/TradingCharts";
-import BtcKesChart from "@/components/BtcKesChart";
-import MultiCryptoCharts from "@/components/MultiCryptoCharts";
-import CryptoPortfolioTracker from "@/components/CryptoPortfolioTracker";
+import MarketPanel from "@/components/MarketPanel";
+import MarketTicker from "@/components/MarketTicker";
+import AnimatedBackground from "@/components/AnimatedBackground";
 import MarketTicker from "@/components/MarketTicker";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import RoleBadge from "@/components/RoleBadge";
@@ -194,15 +194,13 @@ export default function Session() {
           <div className="xl:col-span-2">
             <TradingCharts entries={engine.entries} startingCapital={engine.startingCapital} />
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3">
             <ProjectionLookup
               tradingStartDate={engine.tradingStartDate}
               tradingEndDate={engine.tradingEndDate}
               getProjection={engine.getProjection}
             />
-            <BtcKesChart />
-            <MultiCryptoCharts />
-            <CryptoPortfolioTracker />
+            <MarketPanel />
           </div>
         </motion.div>
 
