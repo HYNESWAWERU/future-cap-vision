@@ -184,6 +184,16 @@ export default function Session() {
           />
         </motion.div>
 
+        {/* Goal Tracker + Streak */}
+        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <GoalTracker
+            entries={engine.entries}
+            startingCapital={engine.startingCapital}
+            currentCapital={engine.summary.currentCapital}
+          />
+          <TradingStreak entries={engine.entries} />
+        </motion.div>
+
         {/* Summary Cards */}
         <motion.div variants={fadeUp}>
           <SummaryCards {...engine.summary} />
