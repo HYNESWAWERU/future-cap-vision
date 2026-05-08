@@ -8,7 +8,7 @@ interface Props {
   entries: DayEntry[];
 }
 
-function computeStreaks(entries: DayEntry[]) {
+export function computeStreaks(entries: DayEntry[]) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const dayMs = 86400000;
