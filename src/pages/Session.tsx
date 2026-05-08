@@ -45,6 +45,8 @@ export default function Session() {
   const [copied, setCopied] = useState(false);
 
   const readOnly = !access.isEditable;
+  const achievements = useAchievements(id ?? null, engine.entries);
+  const currentStreak = useMemo(() => computeStreaks(engine.entries).current, [engine.entries]);
 
   const startYear = new Date(engine.tradingStartDate).getFullYear();
   const endYear = new Date(engine.tradingEndDate).getFullYear();
