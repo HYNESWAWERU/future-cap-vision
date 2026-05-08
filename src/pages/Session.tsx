@@ -11,6 +11,8 @@ import TradingTable from "@/components/TradingTable";
 import TradingCharts from "@/components/TradingCharts";
 import MarketPanel from "@/components/MarketPanel";
 import MarketTicker from "@/components/MarketTicker";
+import GoalTracker from "@/components/GoalTracker";
+import TradingStreak from "@/components/TradingStreak";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import RoleBadge from "@/components/RoleBadge";
 import { PinSetupDialog, PinEntryDialog } from "@/components/PinDialog";
@@ -180,6 +182,16 @@ export default function Session() {
             readOnly={readOnly}
             onEdit={access.logEdit}
           />
+        </motion.div>
+
+        {/* Goal Tracker + Streak */}
+        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <GoalTracker
+            entries={engine.entries}
+            startingCapital={engine.startingCapital}
+            currentCapital={engine.summary.currentCapital}
+          />
+          <TradingStreak entries={engine.entries} />
         </motion.div>
 
         {/* Summary Cards */}
