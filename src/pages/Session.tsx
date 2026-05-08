@@ -167,6 +167,11 @@ export default function Session() {
           </div>
         </motion.div>
 
+        {/* Streak Badges (top) */}
+        <motion.div variants={fadeUp}>
+          <StreakBadges entries={engine.entries} />
+        </motion.div>
+
         {/* Market Ticker */}
         <motion.div variants={fadeUp}>
           <MarketTicker />
