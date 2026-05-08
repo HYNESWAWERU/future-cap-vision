@@ -11,6 +11,8 @@ import TradingTable from "@/components/TradingTable";
 import TradingCharts from "@/components/TradingCharts";
 import MarketPanel from "@/components/MarketPanel";
 import MarketTicker from "@/components/MarketTicker";
+import GoalTracker from "@/components/GoalTracker";
+import TradingStreak from "@/components/TradingStreak";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import RoleBadge from "@/components/RoleBadge";
 import { PinSetupDialog, PinEntryDialog } from "@/components/PinDialog";
