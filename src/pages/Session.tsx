@@ -210,6 +210,20 @@ export default function Session() {
           <SummaryCards {...engine.summary} />
         </motion.div>
 
+        {/* Achievements / Levels */}
+        <motion.div variants={fadeUp}>
+          <AchievementsPanel
+            monthStats={achievements.monthStats}
+            unlocked={achievements.unlocked}
+            currentLevel={achievements.currentLevel}
+            nextLevel={achievements.nextLevel}
+            progressToNext={achievements.progressToNext}
+            newlyUnlocked={achievements.newlyUnlockedLevel}
+            onDismissCelebration={achievements.dismissCelebration}
+            currentStreak={currentStreak}
+          />
+        </motion.div>
+
         {/* Charts + Projection + BTC/KES */}
         <motion.div variants={fadeUp} className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <div className="xl:col-span-2">
