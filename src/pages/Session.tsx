@@ -13,6 +13,10 @@ import MarketPanel from "@/components/MarketPanel";
 import MarketTicker from "@/components/MarketTicker";
 import GoalTracker from "@/components/GoalTracker";
 import TradingStreak from "@/components/TradingStreak";
+import StreakBadges, { computeStreaks } from "@/components/StreakBadges";
+import AchievementsPanel from "@/components/AchievementsPanel";
+import { useAchievements } from "@/hooks/useAchievements";
+import { useMemo } from "react";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import RoleBadge from "@/components/RoleBadge";
 import { PinSetupDialog, PinEntryDialog } from "@/components/PinDialog";
@@ -41,6 +45,8 @@ export default function Session() {
   const [copied, setCopied] = useState(false);
 
   const readOnly = !access.isEditable;
+  const achievements = useAchievements(id ?? null, engine.entries);
+  const currentStreak = useMemo(() => computeStreaks(engine.entries).current, [engine.entries]);
 
   const startYear = new Date(engine.tradingStartDate).getFullYear();
   const endYear = new Date(engine.tradingEndDate).getFullYear();
@@ -161,6 +167,11 @@ export default function Session() {
           </div>
         </motion.div>
 
+        {/* Streak Badges (top) */}
+        <motion.div variants={fadeUp}>
+          <StreakBadges entries={engine.entries} />
+        </motion.div>
+
         {/* Market Ticker */}
         <motion.div variants={fadeUp}>
           <MarketTicker />
@@ -197,6 +208,20 @@ export default function Session() {
         {/* Summary Cards */}
         <motion.div variants={fadeUp}>
           <SummaryCards {...engine.summary} />
+        </motion.div>
+
+        {/* Achievements / Levels */}
+        <motion.div variants={fadeUp}>
+          <AchievementsPanel
+            monthStats={achievements.monthStats}
+            unlocked={achievements.unlocked}
+            currentLevel={achievements.currentLevel}
+            nextLevel={achievements.nextLevel}
+            progressToNext={achievements.progressToNext}
+            newlyUnlocked={achievements.newlyUnlockedLevel}
+            onDismissCelebration={achievements.dismissCelebration}
+            currentStreak={currentStreak}
+          />
         </motion.div>
 
         {/* Charts + Projection + BTC/KES */}
