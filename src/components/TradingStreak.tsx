@@ -1,7 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, Award } from "lucide-react";
-import { useMemo } from "react";
+import { Award } from "lucide-react";
+import { useMemo, useRef, useEffect, useState } from "react";
+import confetti from "canvas-confetti";
 import type { DayEntry } from "@/hooks/useTradingEngine";
+import LiveFlame from "./LiveFlame";
 
 interface Props {
   entries: DayEntry[];
