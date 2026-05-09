@@ -32,17 +32,17 @@ function getColor(pct: number) {
 const MILESTONES = [25, 50, 75, 100];
 
 export default function GoalTracker({ entries, startingCapital, currentCapital }: Props) {
-  const { goal, pct, daysRemaining } = useMemo(() => {
+  const { goal, pct, daysRemaining, daysTraded, totalDays } = useMemo(() => {
     const finalEntry = entries[entries.length - 1];
     const goal = finalEntry ? finalEntry.closingCapital : startingCapital;
-    const totalGain = goal - startingCapital;
-    const currentGain = currentCapital - startingCapital;
-    const pct = totalGain > 0 ? Math.max(0, (currentGain / totalGain) * 100) : 0;
-    const today = new Date();
-    const lastDate = finalEntry ? finalEntry.date : today;
-    const daysRemaining = Math.max(0, Math.ceil((lastDate.getTime() - today.getTime()) / 86400000));
-    return { goal, pct, daysRemaining };
-  }, [entries, startingCapital, currentCapital]);
+    const totalDays = entries.length;
+    const daysTraded = entries.filter(
+      (e) => e.verified || (e.actualResult !== null && !e.isProjected)
+    ).length;
+    const pct = totalDays > 0 ? Math.max(0, (daysTraded / totalDays) * 100) : 0;
+    const daysRemaining = Math.max(0, totalDays - daysTraded);
+    return { goal, pct, daysRemaining, daysTraded, totalDays };
+  }, [entries, startingCapital]);
 
   const color = getColor(pct);
   const msg = getMessage(pct);
