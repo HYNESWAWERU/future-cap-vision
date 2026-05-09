@@ -88,27 +88,25 @@ export default function TradingStreak({ entries }: Props) {
       </div>
 
       <div className="flex items-center gap-4">
-        <motion.div
-          className="relative flex items-center justify-center"
-          animate={
-            streak > 0
-              ? {
-                  scale: [1, 1.08, 1],
-                  rotate: streak >= 30 ? [-3, 3, -3] : [0, 0, 0],
-                }
-              : {}
-          }
-          transition={{
-            duration: streak >= 30 ? 0.8 : 1.6,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          style={{
-            filter: streak > 0 ? `drop-shadow(0 0 ${8 + intensity * 16}px ${flameColor})` : undefined,
-          }}
-        >
-          <Flame size={flameSize} color={flameColor} fill={streak >= 7 ? flameColor : "none"} strokeWidth={1.8} />
-        </motion.div>
+        <div className="flex items-center justify-center" style={{ minWidth: 90 }}>
+          <LiveFlame
+            streak={streak}
+            onTap={() => {
+              if (streak > 0 && earnedRef.current.size > 0) {
+                // small celebration
+                confetti({
+                  particleCount: 18,
+                  spread: 60,
+                  startVelocity: 25,
+                  origin: { y: 0.7 },
+                  colors: ["#ff6a1a", "#ffd24a", "#ff1e6b"],
+                  ticks: 50,
+                  zIndex: 9999,
+                });
+              }
+            }}
+          />
+        </div>
 
         <div className="flex-1">
           <div className="flex items-baseline gap-1.5">
