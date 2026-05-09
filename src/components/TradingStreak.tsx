@@ -116,7 +116,7 @@ export default function TradingStreak({ entries }: Props) {
           <LiveFlame
             streak={streak}
             onTap={() => {
-              if (streak > 0 && earnedRef.current.size > 0) {
+              if (streak > 0) {
                 // small celebration
                 confetti({
                   particleCount: 18,
