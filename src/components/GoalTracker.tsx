@@ -277,7 +277,8 @@ export default function GoalTracker({ entries, startingCapital, currentCapital }
       {/* Footer stats */}
       <div className="relative z-10 flex items-center justify-between text-[11px] font-mono">
         <span className="text-muted-foreground">
-          ${startingCapital.toLocaleString()}
+          <span className="text-foreground font-bold">{daysTraded}</span>
+          <span className="opacity-70">/{totalDays}d traded</span>
         </span>
         <div className="flex items-center gap-1.5 text-foreground">
           <Calendar className="h-3 w-3 text-primary" />
