@@ -1,7 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, Award } from "lucide-react";
-import { useMemo } from "react";
+import { Award } from "lucide-react";
+import { useMemo, useRef, useEffect, useState } from "react";
+import confetti from "canvas-confetti";
 import type { DayEntry } from "@/hooks/useTradingEngine";
+import LiveFlame from "./LiveFlame";
 
 interface Props {
   entries: DayEntry[];
@@ -66,14 +68,79 @@ export default function TradingStreak({ entries }: Props) {
 
   const earned = MILESTONES.filter((m) => streak >= m.days);
   const next = MILESTONES.find((m) => streak < m.days);
+  const [justUnlocked, setJustUnlocked] = useState<typeof MILESTONES[number] | null>(null);
+  const prevEarnedCount = useRef(earned.length);
+
+  useEffect(() => {
+    if (earned.length > prevEarnedCount.current) {
+      const newest = earned[earned.length - 1];
+      setJustUnlocked(newest);
+      // cinematic burst
+      confetti({
+        particleCount: 120,
+        spread: 90,
+        startVelocity: 45,
+        origin: { y: 0.6 },
+        colors: ["#ff6a1a", "#ffd24a", "#ff1e6b", "#1e6bff", "#ffffff"],
+        ticks: 120,
+        zIndex: 9999,
+      });
+      setTimeout(() => confetti({ particleCount: 80, spread: 360, startVelocity: 25, origin: { y: 0.5 }, ticks: 100, zIndex: 9999 }), 200);
+      if ("vibrate" in navigator) navigator.vibrate?.([40, 60, 80]);
+      const t = setTimeout(() => setJustUnlocked(null), 3500);
+      return () => clearTimeout(t);
+    }
+    prevEarnedCount.current = earned.length;
+  }, [earned.length]);
 
   return (
     <motion.div
-      className="glass-card-hover rounded-xl p-4 space-y-3"
+      className="glass-card-hover rounded-xl p-4 space-y-3 relative overflow-hidden"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
+      <AnimatePresence>
+        {justUnlocked && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.2 }}
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none"
+            style={{
+              background: "radial-gradient(circle, rgba(255,90,30,0.4) 0%, rgba(0,0,0,0.65) 70%)",
+              backdropFilter: "blur(2px)",
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0, rotate: -20 }}
+              animate={{ scale: [0, 1.4, 1], rotate: [-20, 10, 0] }}
+              transition={{ duration: 0.8, ease: "backOut" }}
+              className="text-5xl mb-2"
+              style={{ filter: "drop-shadow(0 0 20px #ff6a1a)" }}
+            >
+              {justUnlocked.emoji}
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-sm font-bold uppercase tracking-widest"
+              style={{ color: "#ffd24a", textShadow: "0 0 12px #ff6a1a" }}
+            >
+              {justUnlocked.label}
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-[10px] text-muted-foreground mt-1 font-mono"
+            >
+              {justUnlocked.days}-day streak unlocked
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
           Trading Streak
@@ -86,27 +153,25 @@ export default function TradingStreak({ entries }: Props) {
       </div>
 
       <div className="flex items-center gap-4">
-        <motion.div
-          className="relative flex items-center justify-center"
-          animate={
-            streak > 0
-              ? {
-                  scale: [1, 1.08, 1],
-                  rotate: streak >= 30 ? [-3, 3, -3] : [0, 0, 0],
-                }
-              : {}
-          }
-          transition={{
-            duration: streak >= 30 ? 0.8 : 1.6,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          style={{
-            filter: streak > 0 ? `drop-shadow(0 0 ${8 + intensity * 16}px ${flameColor})` : undefined,
-          }}
-        >
-          <Flame size={flameSize} color={flameColor} fill={streak >= 7 ? flameColor : "none"} strokeWidth={1.8} />
-        </motion.div>
+        <div className="flex items-center justify-center" style={{ minWidth: 90 }}>
+          <LiveFlame
+            streak={streak}
+            onTap={() => {
+              if (streak > 0) {
+                // small celebration
+                confetti({
+                  particleCount: 18,
+                  spread: 60,
+                  startVelocity: 25,
+                  origin: { y: 0.7 },
+                  colors: ["#ff6a1a", "#ffd24a", "#ff1e6b"],
+                  ticks: 50,
+                  zIndex: 9999,
+                });
+              }
+            }}
+          />
+        </div>
 
         <div className="flex-1">
           <div className="flex items-baseline gap-1.5">
