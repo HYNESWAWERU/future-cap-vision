@@ -95,11 +95,52 @@ export default function TradingStreak({ entries }: Props) {
 
   return (
     <motion.div
-      className="glass-card-hover rounded-xl p-4 space-y-3"
+      className="glass-card-hover rounded-xl p-4 space-y-3 relative overflow-hidden"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
+      <AnimatePresence>
+        {justUnlocked && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.2 }}
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none"
+            style={{
+              background: "radial-gradient(circle, rgba(255,90,30,0.4) 0%, rgba(0,0,0,0.65) 70%)",
+              backdropFilter: "blur(2px)",
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0, rotate: -20 }}
+              animate={{ scale: [0, 1.4, 1], rotate: [-20, 10, 0] }}
+              transition={{ duration: 0.8, ease: "backOut" }}
+              className="text-5xl mb-2"
+              style={{ filter: "drop-shadow(0 0 20px #ff6a1a)" }}
+            >
+              {justUnlocked.emoji}
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-sm font-bold uppercase tracking-widest"
+              style={{ color: "#ffd24a", textShadow: "0 0 12px #ff6a1a" }}
+            >
+              {justUnlocked.label}
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-[10px] text-muted-foreground mt-1 font-mono"
+            >
+              {justUnlocked.days}-day streak unlocked
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
           Trading Streak
