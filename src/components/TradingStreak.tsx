@@ -68,6 +68,30 @@ export default function TradingStreak({ entries }: Props) {
 
   const earned = MILESTONES.filter((m) => streak >= m.days);
   const next = MILESTONES.find((m) => streak < m.days);
+  const [justUnlocked, setJustUnlocked] = useState<typeof MILESTONES[number] | null>(null);
+  const prevEarnedCount = useRef(earned.length);
+
+  useEffect(() => {
+    if (earned.length > prevEarnedCount.current) {
+      const newest = earned[earned.length - 1];
+      setJustUnlocked(newest);
+      // cinematic burst
+      confetti({
+        particleCount: 120,
+        spread: 90,
+        startVelocity: 45,
+        origin: { y: 0.6 },
+        colors: ["#ff6a1a", "#ffd24a", "#ff1e6b", "#1e6bff", "#ffffff"],
+        ticks: 120,
+        zIndex: 9999,
+      });
+      setTimeout(() => confetti({ particleCount: 80, spread: 360, startVelocity: 25, origin: { y: 0.5 }, ticks: 100, zIndex: 9999 }), 200);
+      if ("vibrate" in navigator) navigator.vibrate?.([40, 60, 80]);
+      const t = setTimeout(() => setJustUnlocked(null), 3500);
+      return () => clearTimeout(t);
+    }
+    prevEarnedCount.current = earned.length;
+  }, [earned.length]);
 
   return (
     <motion.div
