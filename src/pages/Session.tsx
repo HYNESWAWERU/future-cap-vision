@@ -18,6 +18,8 @@ import AchievementsPanel from "@/components/AchievementsPanel";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useMemo } from "react";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import AccountabilityPartners from "@/components/AccountabilityPartners";
+import AlertPopups from "@/components/AlertPopups";
 import RoleBadge from "@/components/RoleBadge";
 import { PinSetupDialog, PinEntryDialog } from "@/components/PinDialog";
 import EditLogDialog from "@/components/EditLogDialog";
