@@ -207,6 +207,11 @@ export default function Session() {
           <TradingStreak entries={engine.entries} />
         </motion.div>
 
+        {/* Accountability Partners */}
+        <motion.div variants={fadeUp}>
+          <AccountabilityPartners sessionId={id ?? null} readOnly={readOnly} />
+        </motion.div>
+
         {/* Summary Cards */}
         <motion.div variants={fadeUp}>
           <SummaryCards {...engine.summary} />
