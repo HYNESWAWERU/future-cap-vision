@@ -32,9 +32,8 @@ export default function AlertPopups({ sessionId, entries, startingCapital, daily
     );
     if (!todayEntry) return;
 
-    const opening = todayEntry.openingCapital || startingCapital;
     const dailyPnl = todayEntry.dailyProfitLoss;
-    const dailyPct = opening !== 0 ? (dailyPnl / opening) * 100 : 0;
+    const dailyPct = todayEntry.percentChange;
     setPct(dailyPct);
     setPnl(dailyPnl);
 
