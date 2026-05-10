@@ -124,6 +124,13 @@ export default function Session() {
 
       <AnimatedBackground />
 
+      <AlertPopups
+        sessionId={id ?? null}
+        entries={engine.entries}
+        startingCapital={engine.startingCapital}
+        dailyTargetPercent={engine.dailyTargetPercent}
+      />
+
       <motion.div
         className="relative z-10 min-h-screen bg-transparent p-4 md:p-6 space-y-5 max-w-[1440px] mx-auto"
         variants={stagger}
