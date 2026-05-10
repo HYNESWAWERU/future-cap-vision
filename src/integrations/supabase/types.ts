@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      accountability_partners: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          label: string
+          name: string
+          notify_loss: boolean
+          notify_milestones: boolean
+          notify_profit: boolean
+          notify_weekly: boolean
+          session_id: string
+          verification_token: string
+          verified: boolean
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          label?: string
+          name?: string
+          notify_loss?: boolean
+          notify_milestones?: boolean
+          notify_profit?: boolean
+          notify_weekly?: boolean
+          session_id: string
+          verification_token?: string
+          verified?: boolean
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          label?: string
+          name?: string
+          notify_loss?: boolean
+          notify_milestones?: boolean
+          notify_profit?: boolean
+          notify_weekly?: boolean
+          session_id?: string
+          verification_token?: string
+          verified?: boolean
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       edit_log: {
         Row: {
           created_at: string
@@ -58,6 +106,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      partner_alerts_log: {
+        Row: {
+          alert_date: string
+          alert_type: string
+          created_at: string
+          id: string
+          partner_id: string
+          pct: number | null
+          pnl: number | null
+          session_id: string
+        }
+        Insert: {
+          alert_date?: string
+          alert_type: string
+          created_at?: string
+          id?: string
+          partner_id: string
+          pct?: number | null
+          pnl?: number | null
+          session_id: string
+        }
+        Update: {
+          alert_date?: string
+          alert_type?: string
+          created_at?: string
+          id?: string
+          partner_id?: string
+          pct?: number | null
+          pnl?: number | null
+          session_id?: string
+        }
+        Relationships: []
       }
       trade_entries: {
         Row: {

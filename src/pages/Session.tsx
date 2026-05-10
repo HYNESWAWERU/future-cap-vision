@@ -18,6 +18,8 @@ import AchievementsPanel from "@/components/AchievementsPanel";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useMemo } from "react";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import AccountabilityPartners from "@/components/AccountabilityPartners";
+import AlertPopups from "@/components/AlertPopups";
 import RoleBadge from "@/components/RoleBadge";
 import { PinSetupDialog, PinEntryDialog } from "@/components/PinDialog";
 import EditLogDialog from "@/components/EditLogDialog";
@@ -122,6 +124,13 @@ export default function Session() {
 
       <AnimatedBackground />
 
+      <AlertPopups
+        sessionId={id ?? null}
+        entries={engine.entries}
+        startingCapital={engine.startingCapital}
+        dailyTargetPercent={engine.dailyTargetPercent}
+      />
+
       <motion.div
         className="relative z-10 min-h-screen bg-transparent p-4 md:p-6 space-y-5 max-w-[1440px] mx-auto"
         variants={stagger}
@@ -203,6 +212,11 @@ export default function Session() {
             currentCapital={engine.summary.currentCapital}
           />
           <TradingStreak entries={engine.entries} />
+        </motion.div>
+
+        {/* Accountability Partners */}
+        <motion.div variants={fadeUp}>
+          <AccountabilityPartners sessionId={id ?? null} readOnly={readOnly} />
         </motion.div>
 
         {/* Summary Cards */}
