@@ -62,22 +62,23 @@ export function useAchievements(sessionId: string | null, entries: DayEntry[]): 
 
   const [newlyUnlockedLevel, setNewlyUnlockedLevel] = useState<number | null>(null);
 
-  // Detect new unlocks vs persisted state
+  // Detect new unlocks vs persisted state. Allow decreases (revoke) without celebration.
   useEffect(() => {
     if (!sessionId) return;
     const key = STORAGE_PREFIX + sessionId;
-    const stored = parseInt(localStorage.getItem(key) ?? "0", 10);
+    const stored = parseInt(localStorage.getItem(key) ?? "-1", 10);
+    if (stored === -1) {
+      // First time seeing this session — store silently, no celebration.
+      localStorage.setItem(key, String(unlocked));
+      return;
+    }
     if (unlocked > stored) {
       localStorage.setItem(key, String(unlocked));
-      // Only celebrate if it's a meaningful gain (not initial load of an old session)
-      if (stored > 0 || unlocked === 1) {
-        setNewlyUnlockedLevel(unlocked);
-        fireConfetti();
-        playUnlockSound();
-      } else {
-        // restored existing progress silently
-      }
+      setNewlyUnlockedLevel(unlocked);
+      fireConfetti();
+      playUnlockSound();
     } else if (unlocked < stored) {
+      // Revoked — pace dropped below threshold. Update silently.
       localStorage.setItem(key, String(unlocked));
     }
   }, [unlocked, sessionId]);
