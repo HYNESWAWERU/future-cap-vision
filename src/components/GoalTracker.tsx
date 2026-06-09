@@ -32,18 +32,32 @@ function getColor(pct: number) {
 
 const MILESTONES = [25, 50, 75, 100];
 
-export default function GoalTracker({ entries, startingCapital, currentCapital }: Props) {
-  const { goal, pct, daysRemaining, daysTraded, totalDays } = useMemo(() => {
+export default function GoalTracker({ entries, startingCapital, currentCapital, dailyTargetPercent = 4 }: Props) {
+  const { goal, pct, daysRemaining, daysTraded, totalDays, daysAhead } = useMemo(() => {
     const finalEntry = entries[entries.length - 1];
     const goal = finalEntry ? finalEntry.closingCapital : startingCapital;
     const totalDays = entries.length;
     const daysTraded = entries.filter(
       (e) => e.verified || (e.actualResult !== null && !e.isProjected)
     ).length;
-    const pct = totalDays > 0 ? Math.max(0, (daysTraded / totalDays) * 100) : 0;
+
+    // Progress % = capital growth vs total goal growth (true pacing, not days entered)
+    const totalGrowth = goal - startingCapital;
+    const actualGrowth = currentCapital - startingCapital;
+    const pct = totalGrowth > 0 ? Math.max(0, (actualGrowth / totalGrowth) * 100) : 0;
+
+    // Days ahead/behind: where does current capital land on the compounding schedule?
+    // Schedule: cap(n) = start * (1+r)^n  →  n = log(current/start)/log(1+r)
+    let daysAhead = 0;
+    const r = dailyTargetPercent / 100;
+    if (startingCapital > 0 && currentCapital > 0 && r > 0 && daysTraded > 0) {
+      const paceDay = Math.log(currentCapital / startingCapital) / Math.log(1 + r);
+      daysAhead = Math.round(paceDay - daysTraded);
+    }
+
     const daysRemaining = Math.max(0, totalDays - daysTraded);
-    return { goal, pct, daysRemaining, daysTraded, totalDays };
-  }, [entries, startingCapital]);
+    return { goal, pct, daysRemaining, daysTraded, totalDays, daysAhead };
+  }, [entries, startingCapital, currentCapital, dailyTargetPercent]);
 
   const color = getColor(pct);
   const msg = getMessage(pct);
