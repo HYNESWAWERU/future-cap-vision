@@ -62,14 +62,14 @@ export function computeMonthStats(entries: DayEntry[]): MonthStat[] {
   const monthMap = new Map<string, { label: string; actual: number; target: number; first: Date }>();
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+  // Target = full month target (includes projected days). Actual = realized P&L only.
   for (const e of entries) {
-    if (e.isProjected) continue;
     const k = `${e.date.getFullYear()}-${e.date.getMonth()}`;
     const label = `${monthNames[e.date.getMonth()]} ${e.date.getFullYear()}`;
-    const target = e.targetCapital - e.startingCapital;
+    const dailyTarget = e.targetCapital - e.startingCapital;
     const cur = monthMap.get(k) ?? { label, actual: 0, target: 0, first: e.date };
-    cur.actual += e.dailyProfitLoss;
-    cur.target += target;
+    cur.target += dailyTarget;
+    if (!e.isProjected) cur.actual += e.dailyProfitLoss;
     if (e.date < cur.first) cur.first = e.date;
     monthMap.set(k, cur);
   }
