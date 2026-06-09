@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "framer-motion";
-import { Target, Calendar, Sparkles } from "lucide-react";
+import { Target, Calendar, Sparkles, TrendingUp, TrendingDown } from "lucide-react";
 import { useMemo, useEffect, useState, useRef } from "react";
 import type { DayEntry } from "@/hooks/useTradingEngine";
 
@@ -7,6 +7,7 @@ interface Props {
   entries: DayEntry[];
   startingCapital: number;
   currentCapital: number;
+  dailyTargetPercent?: number;
 }
 
 function getMessage(pct: number) {
@@ -31,18 +32,32 @@ function getColor(pct: number) {
 
 const MILESTONES = [25, 50, 75, 100];
 
-export default function GoalTracker({ entries, startingCapital, currentCapital }: Props) {
-  const { goal, pct, daysRemaining, daysTraded, totalDays } = useMemo(() => {
+export default function GoalTracker({ entries, startingCapital, currentCapital, dailyTargetPercent = 4 }: Props) {
+  const { goal, pct, daysRemaining, daysTraded, totalDays, daysAhead } = useMemo(() => {
     const finalEntry = entries[entries.length - 1];
     const goal = finalEntry ? finalEntry.closingCapital : startingCapital;
     const totalDays = entries.length;
     const daysTraded = entries.filter(
       (e) => e.verified || (e.actualResult !== null && !e.isProjected)
     ).length;
-    const pct = totalDays > 0 ? Math.max(0, (daysTraded / totalDays) * 100) : 0;
+
+    // Progress % = capital growth vs total goal growth (true pacing, not days entered)
+    const totalGrowth = goal - startingCapital;
+    const actualGrowth = currentCapital - startingCapital;
+    const pct = totalGrowth > 0 ? Math.max(0, (actualGrowth / totalGrowth) * 100) : 0;
+
+    // Days ahead/behind: where does current capital land on the compounding schedule?
+    // Schedule: cap(n) = start * (1+r)^n  →  n = log(current/start)/log(1+r)
+    let daysAhead = 0;
+    const r = dailyTargetPercent / 100;
+    if (startingCapital > 0 && currentCapital > 0 && r > 0 && daysTraded > 0) {
+      const paceDay = Math.log(currentCapital / startingCapital) / Math.log(1 + r);
+      daysAhead = Math.round(paceDay - daysTraded);
+    }
+
     const daysRemaining = Math.max(0, totalDays - daysTraded);
-    return { goal, pct, daysRemaining, daysTraded, totalDays };
-  }, [entries, startingCapital]);
+    return { goal, pct, daysRemaining, daysTraded, totalDays, daysAhead };
+  }, [entries, startingCapital, currentCapital, dailyTargetPercent]);
 
   const color = getColor(pct);
   const msg = getMessage(pct);
@@ -273,6 +288,45 @@ export default function GoalTracker({ entries, startingCapital, currentCapital }
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Pacing pill: days ahead/behind schedule */}
+      {daysTraded > 0 && (
+        <motion.div
+          key={daysAhead}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative z-10 flex items-center justify-center"
+        >
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold border"
+            style={
+              daysAhead > 0
+                ? { background: "hsl(140 70% 45% / 0.15)", borderColor: "hsl(140 70% 45% / 0.4)", color: "hsl(140 80% 65%)" }
+                : daysAhead < 0
+                ? { background: "hsl(0 80% 55% / 0.15)", borderColor: "hsl(0 80% 55% / 0.4)", color: "hsl(0 85% 70%)" }
+                : { background: "hsl(var(--muted) / 0.4)", borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }
+            }
+          >
+            {daysAhead > 0 ? (
+              <>
+                <TrendingUp className="h-3.5 w-3.5" />
+                <span className="uppercase tracking-wider">
+                  {daysAhead} day{daysAhead === 1 ? "" : "s"} ahead of schedule
+                </span>
+              </>
+            ) : daysAhead < 0 ? (
+              <>
+                <TrendingDown className="h-3.5 w-3.5" />
+                <span className="uppercase tracking-wider">
+                  {Math.abs(daysAhead)} day{Math.abs(daysAhead) === 1 ? "" : "s"} behind schedule
+                </span>
+              </>
+            ) : (
+              <span className="uppercase tracking-wider">Exactly on pace</span>
+            )}
+          </div>
+        </motion.div>
+      )}
 
       {/* Footer stats */}
       <div className="relative z-10 flex items-center justify-between text-[11px] font-mono">

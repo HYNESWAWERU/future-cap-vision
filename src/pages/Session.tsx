@@ -210,6 +210,7 @@ export default function Session() {
             entries={engine.entries}
             startingCapital={engine.startingCapital}
             currentCapital={engine.summary.currentCapital}
+            dailyTargetPercent={engine.dailyTargetPercent}
           />
           <TradingStreak entries={engine.entries} />
         </motion.div>
