@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "framer-motion";
-import { Target, Calendar, Sparkles } from "lucide-react";
+import { Target, Calendar, Sparkles, TrendingUp, TrendingDown } from "lucide-react";
 import { useMemo, useEffect, useState, useRef } from "react";
 import type { DayEntry } from "@/hooks/useTradingEngine";
 
@@ -7,6 +7,7 @@ interface Props {
   entries: DayEntry[];
   startingCapital: number;
   currentCapital: number;
+  dailyTargetPercent?: number;
 }
 
 function getMessage(pct: number) {
