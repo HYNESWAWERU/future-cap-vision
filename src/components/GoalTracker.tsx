@@ -289,6 +289,45 @@ export default function GoalTracker({ entries, startingCapital, currentCapital, 
         </div>
       </div>
 
+      {/* Pacing pill: days ahead/behind schedule */}
+      {daysTraded > 0 && (
+        <motion.div
+          key={daysAhead}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative z-10 flex items-center justify-center"
+        >
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold border"
+            style={
+              daysAhead > 0
+                ? { background: "hsl(140 70% 45% / 0.15)", borderColor: "hsl(140 70% 45% / 0.4)", color: "hsl(140 80% 65%)" }
+                : daysAhead < 0
+                ? { background: "hsl(0 80% 55% / 0.15)", borderColor: "hsl(0 80% 55% / 0.4)", color: "hsl(0 85% 70%)" }
+                : { background: "hsl(var(--muted) / 0.4)", borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }
+            }
+          >
+            {daysAhead > 0 ? (
+              <>
+                <TrendingUp className="h-3.5 w-3.5" />
+                <span className="uppercase tracking-wider">
+                  {daysAhead} day{daysAhead === 1 ? "" : "s"} ahead of schedule
+                </span>
+              </>
+            ) : daysAhead < 0 ? (
+              <>
+                <TrendingDown className="h-3.5 w-3.5" />
+                <span className="uppercase tracking-wider">
+                  {Math.abs(daysAhead)} day{Math.abs(daysAhead) === 1 ? "" : "s"} behind schedule
+                </span>
+              </>
+            ) : (
+              <span className="uppercase tracking-wider">Exactly on pace</span>
+            )}
+          </div>
+        </motion.div>
+      )}
+
       {/* Footer stats */}
       <div className="relative z-10 flex items-center justify-between text-[11px] font-mono">
         <span className="text-muted-foreground">
