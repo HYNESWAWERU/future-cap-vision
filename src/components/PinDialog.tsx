@@ -1,8 +1,38 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Shield, Lock, Unlock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Input } from "@/components/ui/input";
+
+interface PinInputProps {
+  value: string;
+  onChange: (v: string) => void;
+  autoFocus?: boolean;
+}
+
+function PinInput({ value, onChange, autoFocus }: PinInputProps) {
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (autoFocus) {
+      const t = setTimeout(() => ref.current?.focus(), 100);
+      return () => clearTimeout(t);
+    }
+  }, [autoFocus]);
+  return (
+    <Input
+      ref={ref}
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      autoComplete="one-time-code"
+      maxLength={4}
+      value={value}
+      onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 4))}
+      className="text-center text-2xl tracking-[0.5em] font-mono h-14 w-44"
+      placeholder="••••"
+    />
+  );
+}
 
 interface PinSetupProps {
   open: boolean;
@@ -46,14 +76,7 @@ export function PinSetupDialog({ open, onSetPin }: PinSetupProps) {
           {step === "enter" ? (
             <>
               <p className="text-sm text-muted-foreground">Enter a 4-digit PIN</p>
-              <InputOTP maxLength={4} value={pin} onChange={setPin}>
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                </InputOTPGroup>
-              </InputOTP>
+              <PinInput value={pin} onChange={setPin} autoFocus />
               <Button onClick={handleContinue} disabled={pin.length !== 4} className="w-full">
                 Continue
               </Button>
@@ -61,14 +84,7 @@ export function PinSetupDialog({ open, onSetPin }: PinSetupProps) {
           ) : (
             <>
               <p className="text-sm text-muted-foreground">Confirm your PIN</p>
-              <InputOTP maxLength={4} value={confirm} onChange={setConfirm}>
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                </InputOTPGroup>
-              </InputOTP>
+              <PinInput value={confirm} onChange={setConfirm} autoFocus />
               {error && <p className="text-xs text-destructive">{error}</p>}
               <Button onClick={handleConfirm} disabled={confirm.length !== 4} className="w-full">
                 <Lock className="h-4 w-4 mr-2" /> Set PIN
@@ -93,6 +109,7 @@ export function PinEntryDialog({ open, onClose, onSubmit }: PinEntryProps) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    if (pin.length !== 4 || loading) return;
     setLoading(true);
     const ok = await onSubmit(pin);
     setLoading(false);
@@ -123,14 +140,7 @@ export function PinEntryDialog({ open, onClose, onSubmit }: PinEntryProps) {
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col items-center gap-4 py-4">
-          <InputOTP maxLength={4} value={pin} onChange={setPin}>
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-            </InputOTPGroup>
-          </InputOTP>
+          <PinInput value={pin} onChange={setPin} autoFocus />
           {error && <p className="text-xs text-destructive">{error}</p>}
           <Button onClick={handleSubmit} disabled={pin.length !== 4 || loading} className="w-full">
             <Unlock className="h-4 w-4 mr-2" /> {loading ? "Verifying…" : "Unlock"}
