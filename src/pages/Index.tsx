@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import LaunchScreen from "@/components/LaunchScreen";
+import homeBg from "@/assets/home-bg.png.asset.json";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -54,12 +55,18 @@ export default function Index() {
       <LaunchScreen show={showLaunch} onComplete={handleLaunchComplete} />
 
       {launched && (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="relative min-h-screen bg-background flex items-center justify-center p-4 overflow-hidden">
+          {/* Wallpaper */}
+          <div
+            className="absolute inset-0 bg-no-repeat bg-center bg-cover opacity-30"
+            style={{ backgroundImage: `url(${homeBg.url})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background/90" />
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="w-full max-w-md space-y-8"
+            className="relative z-10 w-full max-w-md space-y-8"
           >
             {/* Logo */}
             <div className="flex flex-col items-center gap-3">
