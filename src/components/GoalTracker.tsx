@@ -296,7 +296,7 @@ export default function GoalTracker({ entries, startingCapital, currentCapital, 
       </div>
 
       {/* Pacing pill: days ahead/behind schedule */}
-      {daysTraded > 0 && (
+      {filledDays > 0 && (
         <motion.div
           key={daysAhead}
           initial={{ opacity: 0, y: 6 }}
