@@ -93,7 +93,7 @@ export default function Session() {
 
   return (
     <>
-      <PinSetupDialog open={!access.isPinSet} onSetPin={access.setPin} />
+      <PinSetupDialog open={!engine.loading && !access.isPinSet} onSetPin={access.setPin} />
 
       <PinEntryDialog
         open={showPinEntry}
