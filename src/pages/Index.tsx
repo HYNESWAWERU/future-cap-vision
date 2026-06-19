@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import LaunchScreen from "@/components/LaunchScreen";
+import homeBg from "@/assets/home-bg.png.asset.json";
 
 export default function Index() {
   const navigate = useNavigate();
