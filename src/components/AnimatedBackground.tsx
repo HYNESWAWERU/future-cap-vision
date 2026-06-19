@@ -15,6 +15,13 @@ export default function AnimatedBackground() {
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {/* Bull vs Bear wallpaper */}
+      <div
+        className="absolute inset-0 bg-no-repeat bg-center bg-cover opacity-[0.18] mix-blend-screen"
+        style={{ backgroundImage: `url(${bullBear.url})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/40 to-background/80" />
+
       {/* Grid pattern */}
       <div
         className="absolute inset-0 opacity-[0.03]"
