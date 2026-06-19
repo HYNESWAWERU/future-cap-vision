@@ -33,12 +33,17 @@ function getColor(pct: number) {
 const MILESTONES = [25, 50, 75, 100];
 
 export default function GoalTracker({ entries, startingCapital, currentCapital, dailyTargetPercent = 4 }: Props) {
-  const { goal, pct, daysRemaining, daysTraded, totalDays, daysAhead } = useMemo(() => {
+  const { goal, pct, daysRemaining, daysTraded, totalDays, daysAhead, filledDays } = useMemo(() => {
     const finalEntry = entries[entries.length - 1];
     const goal = finalEntry ? finalEntry.closingCapital : startingCapital;
     const totalDays = entries.length;
     const daysTraded = entries.filter(
       (e) => e.verified || (e.actualResult !== null && !e.isProjected)
+    ).length;
+    // Filled = any day with an actual result logged (verified or not). Pacing uses this
+    // so a logged loss immediately shows "behind" even before verification.
+    const filledDays = entries.filter(
+      (e) => !e.isProjected && e.actualResult !== null
     ).length;
 
     // Progress % = capital growth vs total goal growth (true pacing, not days entered)
@@ -48,15 +53,16 @@ export default function GoalTracker({ entries, startingCapital, currentCapital, 
 
     // Days ahead/behind: where does current capital land on the compounding schedule?
     // Schedule: cap(n) = start * (1+r)^n  →  n = log(current/start)/log(1+r)
+    // Use filledDays so losses register instantly. Allow currentCapital < starting (loss → log negative).
     let daysAhead = 0;
     const r = dailyTargetPercent / 100;
-    if (startingCapital > 0 && currentCapital > 0 && r > 0 && daysTraded > 0) {
+    if (startingCapital > 0 && currentCapital > 0 && r > 0 && filledDays > 0) {
       const paceDay = Math.log(currentCapital / startingCapital) / Math.log(1 + r);
-      daysAhead = Math.round(paceDay - daysTraded);
+      daysAhead = Math.round(paceDay - filledDays);
     }
 
     const daysRemaining = Math.max(0, totalDays - daysTraded);
-    return { goal, pct, daysRemaining, daysTraded, totalDays, daysAhead };
+    return { goal, pct, daysRemaining, daysTraded, totalDays, daysAhead, filledDays };
   }, [entries, startingCapital, currentCapital, dailyTargetPercent]);
 
   const color = getColor(pct);
