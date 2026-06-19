@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useMemo } from "react";
+import bullBear from "@/assets/bull-bear.png.asset.json";
 
 export default function AnimatedBackground() {
   const particles = useMemo(() =>
