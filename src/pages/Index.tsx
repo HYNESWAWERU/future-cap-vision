@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import LaunchScreen from "@/components/LaunchScreen";
-import homeBg from "@/assets/home-bg.png.asset.json";
+import homeBg from "@/assets/home-bg.png";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ export default function Index() {
           {/* Wallpaper */}
           <div
             className="absolute inset-0 bg-no-repeat bg-center bg-cover opacity-30"
-            style={{ backgroundImage: `url(${homeBg.url})` }}
+            style={{ backgroundImage: `url(${homeBg})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background/90" />
           <motion.div
