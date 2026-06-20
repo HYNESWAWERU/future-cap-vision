@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useMemo } from "react";
-import bullBear from "@/assets/bull-bear.png.asset.json";
+import bullBear from "@/assets/bull-bear.png";
 
 export default function AnimatedBackground() {
   const particles = useMemo(() =>
@@ -18,7 +18,7 @@ export default function AnimatedBackground() {
       {/* Bull vs Bear wallpaper (image is on black bg, blend lighten so only the glowing lines show) */}
       <div
         className="absolute inset-0 bg-no-repeat bg-center bg-cover opacity-90"
-        style={{ backgroundImage: `url(${bullBear.url})`, mixBlendMode: "lighten" }}
+        style={{ backgroundImage: `url(${bullBear})`, mixBlendMode: "lighten" }}
       />
 
       {/* Grid pattern */}
