@@ -18,7 +18,7 @@ import AchievementsPanel from "@/components/AchievementsPanel";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useMemo } from "react";
 import AnimatedBackground from "@/components/AnimatedBackground";
-import AccountabilityPartners from "@/components/AccountabilityPartners";
+import CompetitionPanel from "@/components/CompetitionPanel";
 import AlertPopups from "@/components/AlertPopups";
 import RoleBadge from "@/components/RoleBadge";
 import { PinSetupDialog, PinEntryDialog } from "@/components/PinDialog";
@@ -215,9 +215,9 @@ export default function Session() {
           <TradingStreak entries={engine.entries} />
         </motion.div>
 
-        {/* Accountability Partners */}
+        {/* Competitions */}
         <motion.div variants={fadeUp}>
-          <AccountabilityPartners sessionId={id ?? null} readOnly={readOnly} />
+          <CompetitionPanel sessionId={id ?? null} readOnly={readOnly} />
         </motion.div>
 
         {/* Summary Cards */}

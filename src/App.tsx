@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import Session from "./pages/Session.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import VerifyPartner from "./pages/VerifyPartner.tsx";
+import Competition from "./pages/Competition.tsx";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/session/:id" element={<Session />} />
           <Route path="/verify-partner/:token" element={<VerifyPartner />} />
+          <Route path="/competition/:code" element={<Competition />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

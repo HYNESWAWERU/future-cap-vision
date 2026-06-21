@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Activity, Plus, Loader2, ArrowRight } from "lucide-react";
+import { Activity, Plus, Loader2, ArrowRight, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ export default function Index() {
   const [launched, setLaunched] = useState(false);
   const [creating, setCreating] = useState(false);
   const [joinId, setJoinId] = useState("");
+  const [compCode, setCompCode] = useState("");
 
   const handleLaunchComplete = () => {
     setShowLaunch(false);
@@ -48,6 +49,14 @@ export default function Index() {
     if (uuidMatch) {
       navigate(`/session/${uuidMatch[0]}`);
     }
+  };
+
+  const handleOpenCompetition = () => {
+    const code = compCode.trim().toUpperCase();
+    if (!code) return;
+    // accept full link or bare code
+    const fromUrl = code.match(/competition\/([A-Z0-9]{4,12})/i)?.[1]?.toUpperCase();
+    navigate(`/competition/${fromUrl ?? code}`);
   };
 
   return (
@@ -124,6 +133,39 @@ export default function Index() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
+            </motion.div>
+
+            {/* Competition */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="glass-card p-6 rounded-xl space-y-4 border border-yellow-400/20"
+            >
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center shadow-[0_0_18px_hsl(45_95%_55%/0.4)]">
+                  <Trophy className="h-4 w-4 text-amber-950" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-foreground">Competitions</h2>
+                  <p className="text-[11px] text-muted-foreground">Race other traders, ranked by % growth</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter competition code..."
+                  value={compCode}
+                  onChange={(e) => setCompCode(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => e.key === "Enter" && handleOpenCompetition()}
+                  className="flex-1 text-sm font-mono tracking-widest uppercase"
+                />
+                <Button onClick={handleOpenCompetition} size="icon" variant="outline">
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-[10px] text-muted-foreground/70">
+                Create a competition from inside any session via the Competitions card.
+              </p>
             </motion.div>
           </motion.div>
         </div>
