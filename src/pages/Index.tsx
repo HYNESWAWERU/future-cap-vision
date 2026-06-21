@@ -134,6 +134,39 @@ export default function Index() {
                 </Button>
               </div>
             </motion.div>
+
+            {/* Competition */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="glass-card p-6 rounded-xl space-y-4 border border-yellow-400/20"
+            >
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center shadow-[0_0_18px_hsl(45_95%_55%/0.4)]">
+                  <Trophy className="h-4 w-4 text-amber-950" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-foreground">Competitions</h2>
+                  <p className="text-[11px] text-muted-foreground">Race other traders, ranked by % growth</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter competition code..."
+                  value={compCode}
+                  onChange={(e) => setCompCode(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => e.key === "Enter" && handleOpenCompetition()}
+                  className="flex-1 text-sm font-mono tracking-widest uppercase"
+                />
+                <Button onClick={handleOpenCompetition} size="icon" variant="outline">
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-[10px] text-muted-foreground/70">
+                Create a competition from inside any session via the Competitions card.
+              </p>
+            </motion.div>
           </motion.div>
         </div>
       )}
