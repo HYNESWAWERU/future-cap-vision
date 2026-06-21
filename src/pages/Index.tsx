@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Activity, Plus, Loader2, ArrowRight } from "lucide-react";
+import { Activity, Plus, Loader2, ArrowRight, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ export default function Index() {
   const [launched, setLaunched] = useState(false);
   const [creating, setCreating] = useState(false);
   const [joinId, setJoinId] = useState("");
+  const [compCode, setCompCode] = useState("");
 
   const handleLaunchComplete = () => {
     setShowLaunch(false);
@@ -48,6 +49,14 @@ export default function Index() {
     if (uuidMatch) {
       navigate(`/session/${uuidMatch[0]}`);
     }
+  };
+
+  const handleOpenCompetition = () => {
+    const code = compCode.trim().toUpperCase();
+    if (!code) return;
+    // accept full link or bare code
+    const fromUrl = code.match(/competition\/([A-Z0-9]{4,12})/i)?.[1]?.toUpperCase();
+    navigate(`/competition/${fromUrl ?? code}`);
   };
 
   return (
