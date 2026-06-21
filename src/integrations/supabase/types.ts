@@ -62,6 +62,62 @@ export type Database = {
         }
         Relationships: []
       }
+      competition_entries: {
+        Row: {
+          competition_id: string
+          display_name: string
+          id: string
+          joined_at: string
+          session_id: string
+        }
+        Insert: {
+          competition_id: string
+          display_name?: string
+          id?: string
+          joined_at?: string
+          session_id: string
+        }
+        Update: {
+          competition_id?: string
+          display_name?: string
+          id?: string
+          joined_at?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competition_entries_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitions: {
+        Row: {
+          code: string
+          created_at: string
+          creator_session_id: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          creator_session_id?: string | null
+          id?: string
+          name?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          creator_session_id?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       edit_log: {
         Row: {
           created_at: string
