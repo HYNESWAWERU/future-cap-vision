@@ -86,7 +86,7 @@ export default function CompetitionPanel({ sessionId, readOnly }: Props) {
   };
 
   return (
-    <div className="glass-card-hover rounded-2xl p-5 space-y-4">
+    <div className="glass-card-hover rounded-2xl p-5 space-y-4 relative">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-yellow-400/30 to-amber-600/30 flex items-center justify-center border border-yellow-400/30">
