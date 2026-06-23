@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Plus, LogIn, ArrowRight, Copy, Check, Loader2, Crown, X } from "lucide-react";
+import { Trophy, Plus, LogIn, ArrowRight, Copy, Check, Loader2, Crown, X, UserPlus, Share2, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -11,6 +11,8 @@ interface Props {
   sessionId: string | null;
   readOnly?: boolean;
 }
+
+const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
 export default function CompetitionPanel({ sessionId, readOnly }: Props) {
   const { items } = useSessionCompetitions(sessionId);
@@ -25,6 +27,12 @@ export default function CompetitionPanel({ sessionId, readOnly }: Props) {
   const [joinDisplayName, setJoinDisplayName] = useState("");
 
   const [copied, setCopied] = useState<string | null>(null);
+  const [managingId, setManagingId] = useState<string | null>(null);
+
+  // add player inline
+  const [playerSessionId, setPlayerSessionId] = useState("");
+  const [playerName, setPlayerName] = useState("");
+  const [addingPlayer, setAddingPlayer] = useState(false);
 
   const handleCreate = async () => {
     if (!sessionId) return;
@@ -33,7 +41,7 @@ export default function CompetitionPanel({ sessionId, readOnly }: Props) {
     try {
       const comp = await createCompetition(compName.trim() || "Competition", sessionId);
       await joinCompetition(comp.code, sessionId, createDisplayName.trim());
-      toast.success(`Competition created · code ${comp.code}`);
+      toast.success(`Competition "${comp.name}" created · code ${comp.code}`);
       setMode("idle"); setCompName(""); setCreateDisplayName("");
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to create");
@@ -54,16 +62,32 @@ export default function CompetitionPanel({ sessionId, readOnly }: Props) {
     } finally { setBusy(false); }
   };
 
-  const copyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    setCopied(code);
-    toast.success(`Code ${code} copied`);
+  const copyText = (text: string, label: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(key);
+    toast.success(`${label} copied`);
     setTimeout(() => setCopied(null), 1800);
+  };
+
+  const inviteLink = (code: string) => `${window.location.origin}/#/competition/${code}`;
+
+  const handleAddPlayer = async (code: string) => {
+    const uuid = playerSessionId.trim().match(UUID_RE)?.[0];
+    if (!uuid) { toast.error("Paste a valid player session ID or link"); return; }
+    if (!playerName.trim()) { toast.error("Enter the player's display name"); return; }
+    setAddingPlayer(true);
+    try {
+      await joinCompetition(code, uuid, playerName.trim());
+      toast.success(`${playerName.trim()} added to competition`);
+      setPlayerSessionId(""); setPlayerName("");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to add player");
+    } finally { setAddingPlayer(false); }
   };
 
   return (
     <div className="glass-card-hover rounded-2xl p-5 space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-yellow-400/30 to-amber-600/30 flex items-center justify-center border border-yellow-400/30">
             <Trophy className="h-4 w-4 text-yellow-300" />
@@ -98,7 +122,7 @@ export default function CompetitionPanel({ sessionId, readOnly }: Props) {
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-2.5">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-primary">
-                  {mode === "create" ? "Create new competition" : "Join with competition code"}
+                  {mode === "create" ? "Name your competition" : "Join with competition code"}
                 </p>
                 <button onClick={() => setMode("idle")} className="text-muted-foreground hover:text-foreground">
                   <X className="h-3.5 w-3.5" />
@@ -123,8 +147,11 @@ export default function CompetitionPanel({ sessionId, readOnly }: Props) {
                   />
                   <Button size="sm" onClick={handleCreate} disabled={busy} className="w-full gap-1.5">
                     {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                    Create & Join
+                    Create competition
                   </Button>
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    After creating you can add players or share an invite link.
+                  </p>
                 </>
               ) : (
                 <>
@@ -162,51 +189,132 @@ export default function CompetitionPanel({ sessionId, readOnly }: Props) {
         </div>
       ) : (
         <div className="space-y-2">
-          {items.map((it) => (
-            <motion.div
-              key={it.id}
-              layout
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-border/50 bg-card/40 p-3 flex items-center gap-3"
-            >
-              <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-yellow-400/20 to-amber-600/20 border border-yellow-400/20 flex items-center justify-center">
-                <Trophy className="h-4 w-4 text-yellow-300" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{it.competition.name}</p>
-                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <span>as <span className="text-foreground font-medium">{it.display_name}</span></span>
-                  <span>·</span>
-                  <button
-                    onClick={() => copyCode(it.competition.code)}
-                    className="font-mono text-primary hover:text-primary/80 inline-flex items-center gap-1"
-                  >
-                    {it.competition.code}
-                    {copied === it.competition.code ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3 opacity-60" />}
-                  </button>
+          {items.map((it) => {
+            const isManaging = managingId === it.id;
+            const link = inviteLink(it.competition.code);
+            return (
+              <motion.div
+                key={it.id}
+                layout
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-xl border border-border/50 bg-card/40 p-3 space-y-2"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-yellow-400/20 to-amber-600/20 border border-yellow-400/20 flex items-center justify-center">
+                    <Trophy className="h-4 w-4 text-yellow-300" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate">{it.competition.name}</p>
+                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <span>as <span className="text-foreground font-medium">{it.display_name}</span></span>
+                      <span>·</span>
+                      <button
+                        onClick={() => copyText(it.competition.code, "Code", `code-${it.id}`)}
+                        className="font-mono text-primary hover:text-primary/80 inline-flex items-center gap-1"
+                      >
+                        {it.competition.code}
+                        {copied === `code-${it.id}` ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3 opacity-60" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {!readOnly && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        title={isManaging ? "Close manage" : "Manage / invite players"}
+                        onClick={() => { setManagingId(isManaging ? null : it.id); setPlayerSessionId(""); setPlayerName(""); }}
+                      >
+                        <Settings2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    {!readOnly && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                        title="Leave competition"
+                        onClick={async () => { await leaveCompetition(it.id); toast.success("Left competition"); }}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    <Link to={`/competition/${it.competition.code}`}>
+                      <Button size="sm" variant="outline" className="gap-1.5 text-xs">
+                        Leaderboard <ArrowRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-1">
-                {!readOnly && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                    title="Leave competition"
-                    onClick={async () => { await leaveCompetition(it.id); toast.success("Left competition"); }}
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-                <Link to={`/competition/${it.competition.code}`}>
-                  <Button size="sm" variant="outline" className="gap-1.5 text-xs">
-                    Leaderboard <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
-                </Link>
-              </div>
-            </motion.div>
-          ))}
+
+                <AnimatePresence>
+                  {isManaging && !readOnly && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-3 mt-1">
+                        {/* Invite link */}
+                        <div className="space-y-1.5">
+                          <p className="text-[11px] font-semibold text-primary flex items-center gap-1.5">
+                            <Share2 className="h-3 w-3" /> Invite link
+                          </p>
+                          <div className="flex gap-1.5">
+                            <Input value={link} readOnly className="h-8 text-xs font-mono" />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 gap-1 text-xs shrink-0"
+                              onClick={() => copyText(link, "Invite link", `link-${it.id}`)}
+                            >
+                              {copied === `link-${it.id}` ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                              Copy
+                            </Button>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground">
+                            Share this link. Players open it, paste their session ID, and join — their balances will auto-update the leaderboard.
+                          </p>
+                        </div>
+
+                        {/* Add player */}
+                        <div className="space-y-1.5 pt-1 border-t border-border/30">
+                          <p className="text-[11px] font-semibold text-primary flex items-center gap-1.5">
+                            <UserPlus className="h-3 w-3" /> Add a player by session ID
+                          </p>
+                          <Input
+                            placeholder="Player session ID or shared link"
+                            value={playerSessionId}
+                            onChange={(e) => setPlayerSessionId(e.target.value)}
+                            className="h-8 text-xs"
+                          />
+                          <Input
+                            placeholder="Player display name"
+                            value={playerName}
+                            onChange={(e) => setPlayerName(e.target.value)}
+                            maxLength={32}
+                            className="h-8 text-xs"
+                          />
+                          <Button
+                            size="sm"
+                            className="w-full h-8 gap-1.5 text-xs"
+                            onClick={() => handleAddPlayer(it.competition.code)}
+                            disabled={addingPlayer}
+                          >
+                            {addingPlayer ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
+                            Add player
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
         </div>
       )}
     </div>
