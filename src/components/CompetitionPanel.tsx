@@ -99,7 +99,7 @@ export default function CompetitionPanel({ sessionId, readOnly }: Props) {
             </p>
           </div>
         </div>
-        {!readOnly && mode === "idle" && (
+        {mode === "idle" && (
           <div className="flex items-center gap-1.5">
             <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => setMode("join")}>
               <LogIn className="h-3.5 w-3.5" /> Join
