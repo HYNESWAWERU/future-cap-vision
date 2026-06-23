@@ -86,7 +86,7 @@ export default function CompetitionPanel({ sessionId, readOnly }: Props) {
   };
 
   return (
-    <div className="glass-card-hover rounded-2xl p-5 space-y-4 relative">
+    <div className="glass-card-hover rounded-2xl p-5 space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-yellow-400/30 to-amber-600/30 flex items-center justify-center border border-yellow-400/30">
@@ -102,7 +102,7 @@ export default function CompetitionPanel({ sessionId, readOnly }: Props) {
         {!readOnly && mode === "idle" && (
           <div className="flex items-center gap-1.5">
             <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => setMode("join")}>
-              <LogIn className="h-3.5 w-3.5" /> Join
+              <LogIn className="h-3.5-w-3.5" /> Join
             </Button>
             <Button size="sm" className="gap-1.5 text-xs" onClick={() => setMode("create")}>
               <Plus className="h-3.5 w-3.5" /> Create
